@@ -1,0 +1,45 @@
+
+.pagination-item:not(.page-numbers),
+.page-numbers .page-numbers-item {
+    width: 44px;
+    height: 44px;
+    margin: 0 6px;
+    cursor: pointer;
+}
+
+.pagination-item:not(.page-numbers):hover,
+.page-numbers .page-numbers-item:hover {
+    opacity: 0.5;
+}
+
+.page-numbers {
+    display: flex;
+}
+
+.page-numbers .page-numbers-item {
+    border-radius: 40%;
+    /* border: 1px solid #ccc; */
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.page-numbers-item.page-current {
+    background-color: #c0d9ff;
+}
+
+#pagination-table-logs i {
+    font-size: 18px;
+    pointer-events: none;
+}
+
+#pagination-table-logs button {
+    background-color: transparent;
+    /* outline: none; */
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    /* color: rgba(0, 0, 0, 0.5); */
+}
+
+button:disabled,
+button[disabled] {
+    cursor: default !important;
+}

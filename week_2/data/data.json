@@ -1,0 +1,592 @@
+{
+    "devices": [
+        {
+            "name": "Tv",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        }
+        ,
+        {
+            "name": "Washer",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        },
+        {
+            "name": "Selling Fan",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        },
+        {
+            "name": "Fan1",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        },
+        {
+            "name": "Fan2",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        },  {
+            "name": "Fan2",
+            "mac": "00:1B:44:11:3A:B7",
+            "ip": "127.0.0.2",
+            "create": "2023-02-25",
+            "consumption": "50"
+        }
+    ], 
+    "logs": [
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },{
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },{
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },{
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },{
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "102",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "103",
+            "name": "Selling Fan",
+            "action": "Turn On",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn Off",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Washer",
+            "action": "Sleep",
+            "date": "2023-02-25"
+        },
+        {
+            "deviceId": "101",
+            "name": "Tv",
+            "action": "Turn on",
+            "date": "2023-02-25"
+        }
+    ]
+       
+    
+}
