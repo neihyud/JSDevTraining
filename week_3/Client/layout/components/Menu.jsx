@@ -5,12 +5,16 @@ import {
     faHouse,
     faClockRotateLeft,
     faGear,
+    faCircleUser,
 } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
+import useWindowSize from '@/customHooks/useWindowSize'
 
-function Menu({ tagIndex }) {
+function Menu({ tagIndex, isOpenMenu }) {
+    const { width } = useWindowSize()
+
     return (
-        <div className="menu mobile-menu">
+        <div className={`menu ${isOpenMenu ? 'mobile-menu' : ''}`}>
             <div className="menu-top">
                 <div className="wrapper-icon center">
                     <FontAwesomeIcon icon={faLayerGroup} />
@@ -18,13 +22,14 @@ function Menu({ tagIndex }) {
                 <div className="menu-top-name">Device Manager</div>
             </div>
 
-            {/* <div className="mobile mobile-menu-top">
-        <span>
-          <i className="fa-solid fa-circle-user"></i>
-        </span>
-        <span>Welcome John</span>
-      </div> */}
-
+            {width < 415 && (
+                <div className="mobile mobile-menu-top center">
+                    <span>
+                        <FontAwesomeIcon icon={faCircleUser} />
+                    </span>
+                    <span>Welcome John</span>
+                </div>
+            )}
             <Link
                 href="/dashboard"
                 style={{ textDecoration: 'none', color: 'black' }}
@@ -115,6 +120,38 @@ function Menu({ tagIndex }) {
                 .menu-item.selected {
                     background-color: #c0d9ff;
                     color: #0e67d1;
+                }
+
+                .mobile-menu-top {
+                    flex-direction: column;
+                    height: 100px;
+                    opacity: 0.4;
+                }
+
+                .mobile-menu-top span:first-child {
+                    font-size: 30px;
+                }
+
+                .mobile-menu-top span:last-child {
+                    font-weight: 800;
+                    margin-top: 5px;
+                }
+
+                @media only screen and (max-width: 414px) {
+                    .menu {
+                        display: block;
+                        position: fixed;
+                        top: 0;
+                        bottom: 0;
+                        z-index: 2;
+                        width: 70%;
+                        left: -100%;
+                        transition: left 0.5s ease;
+                    }
+
+                    .menu.mobile-menu {
+                        left: 0;
+                    }
                 }
             `}</style>
         </div>

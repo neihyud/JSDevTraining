@@ -33,9 +33,9 @@ html {
     width: 100px;
 }
 
-.mobile {
+/* .mobile {
     display: none;
-}
+} */
 
 .center {
     display: flex;

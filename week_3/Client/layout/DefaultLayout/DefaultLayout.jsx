@@ -1,37 +1,55 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Menu from '../components/Menu'
 import Header from '../components/Header'
+import useWindowSize from '@/customHooks/useWindowSize'
+import Modal from '@/components/Modal'
 
 function DefaultLayout({ children, indexTab }) {
+    const [isOpenMenu, setIsOpenMenu] = useState(false)
+    const { width } = useWindowSize()
+
+    const onClickModal = () => {
+        setIsOpenMenu(false)
+    }
+
     return (
-        <div className="page">
-            <Menu tagIndex={indexTab} />
-            <div className="wrapper-content">
-                <Header />
-                <main>{children}</main>
+        <>
+            <div className="page">
+                {width < 415 ? (
+                    <Menu tagIndex={indexTab} isOpenMenu={isOpenMenu} />
+                ) : (
+                    <Menu tagIndex={indexTab} isOpenMenu={isOpenMenu} />
+                )}
+
+                <div className="wrapper-content">
+                    <Header openMenu={setIsOpenMenu} />
+                    <main>{children}</main>
+                </div>
+
+                <style jsx>{`
+                    .page {
+                        display: flex;
+                        height: 100vh;
+                    }
+
+                    .wrapper-content {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    main {
+                        background-color: #f5f5f5;
+                        flex: 1;
+                        padding: 40px 180px 40px 180px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                    }
+                `}</style>
             </div>
-
-            <style jsx>{`
-                .page {
-                    display: flex;
-                }
-
-                .wrapper-content {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                main {
-                    background-color: #f5f5f5;
-                    flex: 1;
-                    padding: 40px 180px 40px 180px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                }
-            `}</style>
-        </div>
+            {width < 414 && isOpenMenu && <Modal onClickModal={onClickModal} />}
+        </>
     )
 }
 

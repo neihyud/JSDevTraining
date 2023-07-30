@@ -7,8 +7,12 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import { getDevices, addDevice } from '@/store/actions/device'
+import useWindowSize from '@/customHooks/useWindowSize'
+import Loading from '@/components/Loading'
 
 const Dashboard = ({ devices = [], getDevices, addDevice }) => {
+    const { width } = useWindowSize()
+    const [isLoading, setIsLoading] = useState(true)
     const [device, setDeviceForm] = useState({
         name: '',
         power: 0,
@@ -86,7 +90,10 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
     }
 
     useEffect(() => {
+        setIsLoading(true)
         getDevices()
+            .then(() => setIsLoading(false))
+            .catch(() => setIsLoading(false))
 
         document.addEventListener('click', handleClickOutSideForm)
         return () => {
@@ -118,7 +125,7 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
                             <td>2023-02-25</td>
                             <td>50</td>
                         </tr> */}
-                        {devices.length == 0 ? (
+                        {(!isLoading && devices.length == 0) ? (
                             <tr style={{ height: '100%', fontSize: '30px' }}>
                                 <td
                                     className="center"
@@ -156,7 +163,7 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
                         </tr>
                     </tfoot>
                 </table>
-                <div className="loading hide"></div>
+                {isLoading && <Loading />}
             </div>
 
             <div className="manage-device">

@@ -1,8 +1,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
+import { faCircleUser, faBars } from '@fortawesome/free-solid-svg-icons'
+import useWindowSize from '@/customHooks/useWindowSize'
+import { useState } from 'react'
+import store from '@/store/store'
 
-function Header() {
-    return (
+function Header({ openMenu }) {
+    const { width } = useWindowSize()
+
+    return width < 415 ? (
+        <div className="mobile mobile-header">
+            <FontAwesomeIcon icon={faBars} onClick={() => openMenu(true)} />
+            <h3>Device Manager</h3>
+        </div>
+    ) : (
         <header className="header">
             <div>
                 <span>

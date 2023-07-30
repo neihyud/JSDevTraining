@@ -16,6 +16,10 @@ const getDevices = async (req, res) => {
         // console.log('DATA: ', data)
         // console.log('DATATYPE: ', typeof data)
 
+        // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+        // await delay(5000) // Đợi trong 200ms
+
         return res.status(200).json({ success: true, devices })
     } catch (error) {
         return res
@@ -57,7 +61,9 @@ const getLogs = async (req, res) => {
             })
         }
 
-        const logTemp = logs.filter((log) => log.name.toLowerCase().includes(q.toLowerCase()))
+        const logTemp = logs.filter((log) =>
+            log.name.toLowerCase().includes(q.toLowerCase())
+        )
 
         return res.status(200).json({
             success: true,
