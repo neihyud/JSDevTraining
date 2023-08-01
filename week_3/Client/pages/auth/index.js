@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie'
 import styles from '@/styles/auth.module.css'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { login as loginAction } from '@/store/actions/user'
 
 import PropTypes from 'prop-types'
@@ -17,12 +17,12 @@ const Authentication = ({ loginAction, user }) => {
         setLoginForm({ ...login, [event.target.name]: event.target.value })
     }
 
+    
     const onSubmitLoginForm = async (event) => {
         event.preventDefault()
 
         let data = await loginAction({ ...login })
 
-        
         if (!data.success) {
             setError(data.message)
             setTimeout(() => setError(''), 2000)

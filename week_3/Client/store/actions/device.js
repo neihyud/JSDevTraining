@@ -7,9 +7,7 @@ export const getDevices = () => async (dispatch) => {
 
         dispatch({ type: 'GET_DEVICES', payload: data.devices })
     } catch (error) {
-        return error.response
-            ? error.response.data
-            : { success: false, message: 'Server error' }
+        throw error
     }
 }
 
@@ -19,15 +17,16 @@ export const addDevice = (device) => async (dispatch) => {
 
         dispatch({ type: 'ADD_DEVICE', payload: data.device })
     } catch (error) {
-        return error.response
-            ? error.response.data
-            : { success: false, message: 'Server error' }
+        console.log('FAIL ADD DEVICE!')
+        throw error
     }
 }
 
-export const getLogs = (query) => async (dispatch) => {
+export const getLogs = (query, currentPage, pageSize) => async (dispatch) => {
     try {
-        const { data = {} } = await axios.get(`${DOMAIN}/logs?q=${query}`)
+        const { data = {} } = await axios.get(
+            `${DOMAIN}/logs?q=${query}&page=${currentPage}&size=${pageSize}`
+        )
         dispatch({
             type: 'GET_LOGS',
             payload: { logs: data.logs, totalLogs: data.totalLogs },

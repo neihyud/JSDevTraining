@@ -136,6 +136,7 @@ function Menu({ tagIndex, isOpenMenu }) {
                     font-weight: 800;
                     margin-top: 5px;
                 }
+                
 
                 @media only screen and (max-width: 414px) {
                     .menu {

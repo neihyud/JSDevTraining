@@ -4,9 +4,11 @@ import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 
 import store from '@/store/store'
+import { useSelector } from 'react-redux'
 
 function ChartDevice() {
-    const devices = store.getState().devices.devices
+    const devices = useSelector((state) => state.devices.devices)
+    //  store.getState().devices.devices
 
     let xValues = []
     let yValues = []
@@ -26,7 +28,6 @@ function ChartDevice() {
         yValues.push(device.power)
         barColors.push(randomColor)
     })
-
 
     useEffect(() => {
         var ctx = document.getElementById('char-device').getContext('2d')
@@ -54,7 +55,10 @@ function ChartDevice() {
     return (
         <div id="wrapper-char">
             <h3 className="center">Power Consumption</h3>
-            <div id="char">
+            <div
+                id="char"
+                style={xValues.length > 17 ? { width: '100%' } : null}
+            >
                 {/* <Doughnut data={data} /> */}
                 <canvas id="char-device"></canvas>
             </div>
@@ -85,6 +89,7 @@ function ChartDevice() {
                 #char {
                     /* height: 100%; */
                     width: fit-content;
+                    /* width: 100%; */
                     /* max-height: 385px; */
                 }
 
