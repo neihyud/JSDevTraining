@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Menu from '../components/Menu'
 import Header from '../components/Header'
 import useWindowSize from '@/customHooks/useWindowSize'
@@ -25,30 +25,30 @@ function DefaultLayout({ children, indexTab }) {
                     <Header openMenu={setIsOpenMenu} />
                     <main>{children}</main>
                 </div>
-
-                <style jsx>{`
-                    .page {
-                        display: flex;
-                        height: 100vh;
-                    }
-
-                    .wrapper-content {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                    }
-
-                    main {
-                        background-color: #f5f5f5;
-                        flex: 1;
-                        padding: 40px 180px 40px 180px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                    }
-                `}</style>
             </div>
-            {width < 414 && isOpenMenu && <Modal onClickModal={onClickModal} />}
+
+            {width < 415 && isOpenMenu && <Modal onClickModal={onClickModal} />}
+            <style jsx>{`
+                .page {
+                    display: flex;
+                    height: 100%;
+                }
+
+                .wrapper-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                main {
+                    background-color: #f5f5f5;
+                    flex: 1;
+                    padding: 40px 180px 40px 180px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                }
+            `}</style>
         </>
     )
 }

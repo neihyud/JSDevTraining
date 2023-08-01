@@ -1,0 +1,1 @@
+- Để check state khi bắt đầu gọi func async chứa dispatch thì có thể sử dụng một biến (trong reducer) để biết khi nào dispatch hoạt động

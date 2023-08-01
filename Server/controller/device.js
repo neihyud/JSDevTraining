@@ -2,25 +2,29 @@ const axios = require('axios')
 const { DOMAIN } = require('../config')
 const crypto = require('crypto')
 
-let devices = require('../data/data.json')
+const fs = require('fs')
+
 let { logs } = require('../data/logs')
 
 const { validatorDevice } = require('../validators/device')
 
 const getDevices = async (req, res) => {
     try {
-        // const data = await axios.get(
-        //     'https://64be0fb22320b36433c801e4.mockapi.io/api/v1/device'
-        // )
-
-        // console.log('DATA: ', data)
-        // console.log('DATATYPE: ', typeof data)
+        const devices = fs.readFileSync('./data/device.json', (err) => {
+            console.log('error: ', err)
+            return res.status(500).json({
+                success: true,
+                message: 'Get devices fail!',
+            })
+        })
 
         // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
         // await delay(5000) // Đợi trong 200ms
 
-        return res.status(200).json({ success: true, devices })
+        return res
+            .status(200)
+            .json({ success: true, devices: JSON.parse(devices) })
     } catch (error) {
         return res
             .status(500)
@@ -39,24 +43,58 @@ const addDevice = async (req, res) => {
 
     const id = crypto.randomBytes(16).toString('hex')
 
-    devices = [...devices, { name, ip, power, id }]
+    let device = {
+        name,
+        ip,
+        power,
+        id,
+        mac: '00:1B:44:11:3A:B7	',
+        createDate: '2023-02-25',
+    }
+
+    fs.readFile('./data/device.json', function (err, data) {
+        var json = JSON.parse(data)
+
+        json.push(device)
+
+        fs.writeFile(
+            './data/device.json',
+            JSON.stringify(json, null, 2),
+            (err) => {
+                if (err) {
+                    console.log(err.message)
+                    return res.status(500).json({
+                        success: true,
+                        message: 'Add device fail!',
+                        device: device,
+                    })
+                }
+                console.log('data written to file')
+            }
+        )
+    })
 
     return res.status(200).json({
         success: true,
         message: 'Add device success!',
-        device: { name, ip, power, id },
+        device: device,
     })
 }
 
 const getLogs = async (req, res) => {
     try {
-        const { q = '' } = req.query
+        const { q = '', page: currentPage = 1, size: PageSize = 11 } = req.query
+
+        const firstPageIndex = (currentPage - 1) * parseInt(PageSize)
+        const lastPageIndex = firstPageIndex + parseInt(PageSize)
 
         if (!q) {
+            const logsPage = logs.slice(firstPageIndex, lastPageIndex)
+
             return res.status(200).json({
                 success: true,
                 message: 'Get Logs Success',
-                logs: logs,
+                logs: logsPage,
                 totalLogs: logs.length,
             })
         }
@@ -65,10 +103,12 @@ const getLogs = async (req, res) => {
             log.name.toLowerCase().includes(q.toLowerCase())
         )
 
+        const logsPage = logTemp.slice(firstPageIndex, lastPageIndex)
+
         return res.status(200).json({
             success: true,
             message: 'Get Logs Success',
-            logs: logTemp,
+            logs: logsPage,
             totalLogs: logTemp.length,
         })
     } catch (error) {

@@ -9,15 +9,21 @@ import { connect } from 'react-redux'
 import { getDevices, addDevice } from '@/store/actions/device'
 import useWindowSize from '@/customHooks/useWindowSize'
 import Loading from '@/components/Loading'
+import Toast from '@/components/Toast'
 
 const Dashboard = ({ devices = [], getDevices, addDevice }) => {
     const { width } = useWindowSize()
+    const [toasts, setToasts] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [device, setDeviceForm] = useState({
         name: '',
         power: 0,
         ip: '',
     })
+
+    const refName = useRef(null)
+    const refIp = useRef(null)
+    const refPower = useRef(null)
 
     const total = useMemo(() => {
         let tt = 0
@@ -40,6 +46,24 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
         event.preventDefault()
         if (validateDeviceForm()) {
             addDevice(device)
+                .then(() => {
+                    setToasts(() => [
+                        ...toasts,
+                        {
+                            message: 'Add device success!',
+                            type: 'success',
+                        },
+                    ])
+                })
+                .catch(() => {
+                    setToasts(() => [
+                        ...toasts,
+                        {
+                            message: 'Add device fail!',
+                            type: 'error',
+                        },
+                    ])
+                })
             setDeviceForm({ name: '', power: 0, ip: '' })
         }
     }
@@ -75,6 +99,14 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
             err.power = 'Please provide a valid power!'
         }
 
+        if (err.name) {
+            refName.current.focus()
+        } else if (err.ip) {
+            refIp.current.focus()
+        } else if (err.power) {
+            refPower.current.focus()
+        }
+
         setError(err)
 
         if (Object.keys(err).length > 0) {
@@ -85,15 +117,25 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
 
     const handleClickOutSideForm = (event) => {
         if (!refForm.current.contains(event.target)) {
+            console.log('ERROR')
             setError({ name: '', power: '', ip: '' })
+            setDeviceForm({ name: '', power: 0, ip: '' })
         }
     }
 
     useEffect(() => {
         setIsLoading(true)
         getDevices()
-            .then(() => setIsLoading(false))
-            .catch(() => setIsLoading(false))
+            .catch(() => {
+                setToasts(() => [
+                    ...toasts,
+                    {
+                        message: 'Get device fail!',
+                        type: 'error',
+                    },
+                ])
+            })
+            .finally(() => setIsLoading(false))
 
         document.addEventListener('click', handleClickOutSideForm)
         return () => {
@@ -105,133 +147,148 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
     // const user2 = store.getState().users.user
 
     return (
-        <DefaultLayout indexTab={1}>
-            <div id="wrapper-table-device">
-                <table>
-                    <thead>
-                        <tr>
-                            <th className="th-text-left">Devices</th>
-                            <th>MAC Address</th>
-                            <th>IP</th>
-                            <th>Created Date</th>
-                            <th>Devices Consumption (Kw/H)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {/* <tr>
-                            <td className="th-text-left">Tv</td>
-                            <td>00:1B:44:11:3A:B7</td>
-                            <td>127.0.0.2</td>
-                            <td>2023-02-25</td>
-                            <td>50</td>
-                        </tr> */}
-                        {(!isLoading && devices.length == 0) ? (
-                            <tr style={{ height: '100%', fontSize: '30px' }}>
-                                <td
-                                    className="center"
-                                    style={{ width: '100%' }}
+        <>
+            <DefaultLayout indexTab={1}>
+                <div id="wrapper-table-device">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th className="th-text-left">Devices</th>
+                                <th>MAC Address</th>
+                                <th>IP</th>
+                                <th>Created Date</th>
+                                <th>Devices Consumption (Kw/H)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {/* <tr>
+                                <td className="th-text-left">Tv</td>
+                                <td>00:1B:44:11:3A:B7</td>
+                                <td>127.0.0.2</td>
+                                <td>2023-02-25</td>
+                                <td>50</td>
+                            </tr> */}
+                            {!isLoading && devices.length == 0 ? (
+                                <tr
+                                    style={{ height: '100%', fontSize: '30px' }}
                                 >
-                                    <b>Table Empty</b>
+                                    <td
+                                        className="center"
+                                        style={{ width: '100%' }}
+                                    >
+                                        <b>Table Empty</b>
+                                    </td>
+                                </tr>
+                            ) : (
+                                devices.map((device) => {
+                                    return (
+                                        <tr key={device.id}>
+                                            <td className="th-text-left">
+                                                {device.name}
+                                            </td>
+                                            <td>{device.mac}</td>
+                                            <td>{device.ip}</td>
+                                            <td>{device.createDate}</td>
+                                            <td>{device.power}</td>
+                                        </tr>
+                                    )
+                                })
+                            )}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td className="th-text-left">
+                                    <b>Total</b>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <b>{total ? total : 0}</b>
                                 </td>
                             </tr>
-                        ) : (
-                            devices.map((device) => {
-                                return (
-                                    <tr key={device.id}>
-                                        <td className="th-text-left">
-                                            {device.name}
-                                        </td>
-                                        <td>{'00:1B:44:11:3A:B7'}</td>
-                                        <td>{'127.0.0.2'}</td>
-                                        <td>{'2023-02-25'}</td>
-                                        <td>{device.power}</td>
-                                    </tr>
-                                )
-                            })
-                        )}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td className="th-text-left">
-                                <b>Total</b>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <b>{total ? total : 0}</b>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-                {isLoading && <Loading />}
+                        </tfoot>
+                    </table>
+                    {isLoading && <Loading />}
+                </div>
+
+                <div className="manage-device">
+                    <ChartDevice />
+
+                    <form id="form-add-device" className="form" ref={refForm}>
+                        <div className="form-group" name="name">
+                            <input
+                                className={`form-control ${
+                                    error.name && 'form-error'
+                                }`}
+                                type="text"
+                                placeholder="Name"
+                                name="name"
+                                value={name}
+                                onChange={onChangeDeviceForm}
+                                onBlur={onBlurDeviceForm}
+                                ref={refName}
+                            />
+                            {error.name && (
+                                <span className="form-message">
+                                    {error.name}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="form-group" name="ip">
+                            <input
+                                type="text"
+                                className={`form-control ${
+                                    error.ip && 'form-error'
+                                }`}
+                                placeholder="IP"
+                                value={ip}
+                                name="ip"
+                                onChange={onChangeDeviceForm}
+                                onBlur={onBlurDeviceForm}
+                                ref={refIp}
+                            />
+                            {error.ip && (
+                                <span className="form-message">{error.ip}</span>
+                            )}
+                        </div>
+
+                        <div className="form-group" name="power">
+                            <input
+                                type="number"
+                                className={`form-control ${
+                                    error.power && 'form-error'
+                                }`}
+                                placeholder="Power"
+                                value={power < 1 ? '' : power}
+                                name="power"
+                                onChange={onChangeDeviceForm}
+                                onBlur={onBlurDeviceForm}
+                                ref={refPower}
+                            />
+                            {error.power && (
+                                <span className="form-message">
+                                    {error.power}
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <button
+                                className="btn btn-primary"
+                                onClick={onSubmitDeviceForm}
+                            >
+                                ADD DEVICE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </DefaultLayout>
+            <div id="toast">
+                {toasts.map((toast, index) => (
+                    <Toast key={index} {...toast} />
+                ))}
             </div>
-
-            <div className="manage-device">
-                <ChartDevice />
-
-                <form id="form-add-device" className="form" ref={refForm}>
-                    <div className="form-group" name="name">
-                        <input
-                            className={`form-control ${
-                                error.name && 'form-error'
-                            }`}
-                            type="text"
-                            placeholder="Name"
-                            name="name"
-                            value={name}
-                            onChange={onChangeDeviceForm}
-                            onBlur={onBlurDeviceForm}
-                        />
-                        {error.name && (
-                            <span className="form-message">{error.name}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group" name="ip">
-                        <input
-                            type="text"
-                            className={`form-control ${
-                                error.ip && 'form-error'
-                            }`}
-                            placeholder="IP"
-                            value={ip}
-                            name="ip"
-                            onChange={onChangeDeviceForm}
-                            onBlur={onBlurDeviceForm}
-                        />
-                        {error.ip && (
-                            <span className="form-message">{error.ip}</span>
-                        )}
-                    </div>
-
-                    <div className="form-group" name="power">
-                        <input
-                            type="number"
-                            className={`form-control ${
-                                error.power && 'form-error'
-                            }`}
-                            placeholder="Power"
-                            value={power < 1 ? '' : power}
-                            name="power"
-                            onChange={onChangeDeviceForm}
-                            onBlur={onBlurDeviceForm}
-                        />
-                        {error.power && (
-                            <span className="form-message">{error.power}</span>
-                        )}
-                    </div>
-
-                    <div>
-                        <button
-                            className="btn btn-primary"
-                            onClick={onSubmitDeviceForm}
-                        >
-                            ADD DEVICE
-                        </button>
-                    </div>
-                </form>
-            </div>
-
             <style jsx>{`
                 input::-webkit-outer-spin-button,
                 input::-webkit-inner-spin-button {
@@ -361,8 +418,15 @@ const Dashboard = ({ devices = [], getDevices, addDevice }) => {
                 .form-control.form-error {
                     border: 1px solid red;
                 }
+
+                #toast {
+                    position: fixed;
+                    top: 32px;
+                    right: 32px;
+                    z-index: 999999;
+                }
             `}</style>
-        </DefaultLayout>
+        </>
     )
 }
 

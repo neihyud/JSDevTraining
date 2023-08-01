@@ -1,7 +1,0 @@
-[
-    { "ip": 59, "power": 93, "name": "name 1", "id": "1" },
-    { "ip": 87, "power": 58, "name": "name 2", "id": "2" },
-    { "ip": 52, "power": 20, "name": "name 3", "id": "3" },
-    { "ip": 41, "power": 39, "name": "name 4", "id": "4" },
-    { "ip": 47, "power": 36, "name": "name 5", "id": "5" }
-]

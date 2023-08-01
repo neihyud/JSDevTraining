@@ -1,7 +1,7 @@
 import PaginationTable from '@/components/PaginationTable'
 import DefaultLayout from '@/layout/DefaultLayout/DefaultLayout'
 import { getLogs } from '@/store/actions/device'
-import React, { useEffect, useState, useMemo, use } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -10,34 +10,22 @@ const PageSize = 11
 
 function Logs({ logs = [], getLogs, totalLogs = 1 }) {
     const [search, setSearch] = useState('')
-    const [counter, setCounter] = useState(0)
-
-    useEffect(() => {
-        console.log('useEffect run ...')
-        getLogs(search)
-    }, [counter])
 
     const [currentPage, setCurrentPage] = useState(1)
 
-    const currentTableData = useMemo(() => {
-        const firstPageIndex = (currentPage - 1) * PageSize
-        const lastPageIndex = firstPageIndex + PageSize
-        console.log('LastPageIndex: ', lastPageIndex)
-        return logs.slice(firstPageIndex, lastPageIndex)
-    }, [currentPage, logs])
+    useEffect(() => {
+        getLogs(search, currentPage, PageSize)
+    }, [currentPage, search])
+
+    const refSearch = useRef()
 
     const onPageChange = (page) => {
         setCurrentPage(page)
     }
 
     const onSubmitSearchLogs = () => {
-        console.log('ON Search')
-        setCounter(() => (counter > 10 ? 0 : counter + 1))
-        console.log('counter: ', counter)
-    }
-
-    const onChangeSearch = (event) => {
-        setSearch(event.target.value)
+        setSearch(refSearch.current.value)
+        setCurrentPage(1)
     }
 
     return (
@@ -49,7 +37,7 @@ function Logs({ logs = [], getLogs, totalLogs = 1 }) {
                         type="text"
                         className="search"
                         placeholder="Search"
-                        onChange={onChangeSearch}
+                        ref={refSearch}
                     />
                     <button
                         className="btn btn-second"
@@ -70,16 +58,17 @@ function Logs({ logs = [], getLogs, totalLogs = 1 }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentTableData.length == 0 ? (
-                            <tr
-                                style={{ height: '100%', fontSize: '30px' }}
-                            >
-                                <td className='center' style={{ height: '100%'}}>
+                        {logs.length == 0 ? (
+                            <tr style={{ height: '100%', fontSize: '30px' }}>
+                                <td
+                                    className="center"
+                                    style={{ height: '100%' }}
+                                >
                                     <b>Table Empty</b>
                                 </td>
                             </tr>
                         ) : (
-                            currentTableData.map((log) => {
+                            logs.map((log) => {
                                 return (
                                     <tr key={log.deviceId}>
                                         <td className="th-text-left">
