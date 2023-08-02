@@ -8,14 +8,16 @@ import {
   LegacyCard,
   Select,
   DataTable,
-  Card,
   ChoiceList,
   Form,
-  Box,
-  LegacyStack,
-  Button,
 } from "@shopify/polaris";
+
 import ModalSpecificProduct from "~/components/Modals/ModalSpecificProduct";
+
+import { useDispatch, useSelector } from "react-redux";
+
+import ProductCollection from "~/components/AutoComplete/ProductCollection";
+import ProductTags from "~/components/AutoComplete/ProductTags";
 
 const PricingRulePage = () => {
   const [storeName, setStoreName] = useState("");
@@ -42,8 +44,8 @@ const PricingRulePage = () => {
   // =================
 
   const options = [
+    { label: "Enable", value: "enable" },
     { label: "Disable", value: "disable" },
-    { label: "Enable", value: "enble" },
   ];
 
   // Table
@@ -83,7 +85,6 @@ const PricingRulePage = () => {
 
   let additionalFieldProduct = null;
 
-  console.log("selectedProduct: ", selectedProduct[0]);
   switch (selectedProduct[0]) {
     case "2":
       additionalFieldProduct = (
@@ -96,14 +97,10 @@ const PricingRulePage = () => {
       );
       break;
     case "3":
-      additionalFieldProduct = (
-        <TextField
-          label=""
-          placeholder="Vintage, cotton, summer"
-          autoComplete="off"
-          onFocus={handleFocusSpecificProduct}
-        />
-      );
+      additionalFieldProduct = <ProductCollection />;
+      break;
+    case "4":
+      additionalFieldProduct = <ProductTags />;
       break;
     default:
       additionalFieldProduct = <></>;
@@ -210,15 +207,12 @@ const PricingRulePage = () => {
           />
         </Layout.Section>
       </Layout>
-      {/* </LegacyCard> */}
-      {/* {isOpenSpecificModal && (
-        <ModalSpecificProduct type={selectedProduct[0]} openModal={setIsOpenSpecificModal} isOpen={isOpenSpecificModal}/>
-      )} */}
+      {/* 
       <ModalSpecificProduct
         typeModal={selectedProduct[0]}
         openModal={setIsOpenSpecificModal}
         isOpen={isOpenSpecificModal}
-      />
+      /> */}
     </Page>
   );
 };
