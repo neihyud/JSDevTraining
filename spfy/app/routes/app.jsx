@@ -6,7 +6,7 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css";
 import { boundary } from "@shopify/shopify-app-remix";
 
 import { authenticate } from "../shopify.server";
-import FlameTest from "../page/FlameTest";
+
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -32,15 +32,12 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
-        <Link to="/app/additional">Additional page</Link>
         <Link to="/app/pricingRule">New Pricing Rule</Link>
-        <Link to="/app/testcomponent">Test Component</Link>
       </ui-nav-menu>
       <PolarisAppProvider
         i18n={polarisTranslations}
         linkComponent={RemixPolarisLink}
       >
-        {/* <FlameTest /> */}
         <Outlet />
       </PolarisAppProvider>
     </>

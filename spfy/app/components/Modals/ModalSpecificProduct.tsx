@@ -1,5 +1,4 @@
 import {
-  Button,
   Modal,
   LegacyStack,
   Box,
@@ -15,44 +14,54 @@ import {
 import { SearchMajor } from "@shopify/polaris-icons";
 import type { ResourceListProps } from "@shopify/polaris";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "~/types";
 
-// import styles from "./modalSpecificProduct.css";
+const ModalSpecificProduct = ({ openModal, isOpen }) => {
+  const dispatch = useDispatch();
 
-const ModalSpecificProduct = ({ typeModal, openModal, isOpen }) => {
-  /* type: 
-  1: all product
-  2: specific product
-  3: product collection
-  4: product tags  
-  */
-  // const [active, setActive] = useState(true);
+  const [selectedItems, setSelectedItems] = useState<
+    ResourceListProps["selectedItems"]
+  >([]);
 
-  const toggleModal = useCallback(() => {
-    // setActive((active) => !active);
+  const saveModal = () => {
     openModal((isOpen) => !isOpen);
-  }, []);
+    dispatch({
+      type: "UPDATE_SPECIFIC_PRODUCT",
+      payload: [...[selectedItems]],
+    });
+  };
 
-  const activator = <Button onClick={toggleModal}>Open</Button>;
+  const closeModal = () => {
+    openModal((isOpen) => !isOpen);
+    setSelectedItems([]);
+  };
 
   const [textFieldValue, setTextFieldValue] = useState("");
 
-  const handleTextFieldChange = useCallback(
-    (value) => setTextFieldValue(value),
-    []
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
+
+  const specificProduct = useSelector(
+    (state: RootState) => state.products.specificProducts
   );
+
+  useEffect(() => {
+    setSelectedItems(specificProduct);
+  }, [specificProduct, isOpen]);
 
   return (
     <>
       <div style={{ height: "500px" }}>
         <Modal
-          activator={activator}
           open={isOpen}
-          onClose={toggleModal}
+          onClose={closeModal}
           title="SELECT SPECIFIC PRODUCTS"
           primaryAction={{
-            content: "Select",
-            onAction: toggleModal,
+            content: "Save",
+            onAction: saveModal,
           }}
         >
           <Modal.Section>
@@ -69,7 +78,11 @@ const ModalSpecificProduct = ({ typeModal, openModal, isOpen }) => {
                   />
                   <div>
                     <Scrollable>
-                      <ResourceListProduct></ResourceListProduct>
+                      <ResourceListProduct
+                        selectedItems={selectedItems}
+                        setSelectedItems={setSelectedItems}
+                        valueSearch={textFieldValue}
+                      ></ResourceListProduct>
                     </Scrollable>
                   </div>
                 </div>
@@ -82,54 +95,21 @@ const ModalSpecificProduct = ({ typeModal, openModal, isOpen }) => {
   );
 };
 
-const ResourceListProduct = () => {
-  const [selectedItems, setSelectedItems] = useState<
-    ResourceListProps["selectedItems"]
-  >([]);
-
+const ResourceListProduct = ({
+  selectedItems,
+  setSelectedItems,
+  valueSearch,
+}) => {
   const resourceName = {
     singular: "product",
     plural: "products",
   };
 
-  const items = [
-    {
-      id: "101",
-      url: "#",
-      name: "Mae Jemison",
-      location: "Decatur, USA",
-    },
-    {
-      id: "201",
-      url: "#",
-      name: "Ellen Ochoa",
-      location: "Los Angeles, USA",
-    },
-    {
-      id: "101",
-      url: "#",
-      name: "Mae Jemison",
-      location: "Decatur, USA",
-    },
-    {
-      id: "201",
-      url: "#",
-      name: "Ellen Ochoa",
-      location: "Los Angeles, USA",
-    },
-    {
-      id: "101",
-      url: "#",
-      name: "Mae Jemison",
-      location: "Decatur, USA",
-    },
-    {
-      id: "201",
-      url: "#",
-      name: "Ellen Ochoa",
-      location: "Los Angeles, USA",
-    },
-  ];
+  const items = useSelector(
+    (state: RootState) => state.products.allProducts
+  ).filter((product) => {
+    return product.name.toLowerCase().includes(valueSearch.toLowerCase());
+  });
 
   return (
     <LegacyCard>
@@ -146,7 +126,6 @@ const ResourceListProduct = () => {
 
   function renderItem(item: (typeof items)[number]) {
     const { id, url, name } = item;
-    // const media = <Avatar customer size="medium" name={name} />;
     const media = (
       <Thumbnail
         source="https://burst.shopifycdn.com/photos/black-leather-choker-necklace_373x@2x.jpg"

@@ -1,12 +1,23 @@
 import { Autocomplete, Tag, LegacyStack } from "@shopify/polaris";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "~/types";
+import { CirclePlusMinor } from "@shopify/polaris-icons";
 
 const ProductTags = () => {
   const paginationInterval = 25;
-  
-  const deselectedOptions = Array.from(Array(100)).map((_, index) => ({
-    value: `rustic ${index + 1}`,
-    label: `Rustic ${index + 1}`,
+
+  const [productTag, setProductTag] = useState([
+    { id: "1", name: "tag 1" },
+    { id: "2", name: "tag 2" },
+    { id: "3", name: "tag 3" },
+    { id: "4", name: "tag 4" },
+    { id: "5", name: "tag 5" },
+  ]);
+
+  const deselectedOptions = productTag.map((_, index) => ({
+    value: `${_.id}`,
+    label: `${_.name}`,
   }));
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -37,6 +48,29 @@ const ProductTags = () => {
       }, 1000);
     }
   }, [willLoadMoreResults, visibleOptionIndex, options.length]);
+
+  // once call
+  const selectedOptionsTag = useSelector(
+    (state: RootState) => state.products.productTags,
+    () => true
+  );
+  /// ====== =======
+  const dispatch = useDispatch();
+  const [isMount, setIsMount] = useState(false);
+
+  if (!isMount) {
+    setSelectedOptions(selectedOptionsTag);
+    setIsMount(!isMount);
+    // need remove
+    setProductTag([...productTag]);
+  }
+
+  useEffect(() => {
+    dispatch({
+      type: "UPDATE_PRODUCT_TAG",
+      payload: [...selectedOptions],
+    });
+  }, [dispatch, selectedOptions]);
 
   const removeTag = useCallback(
     (tag: string) => () => {
@@ -70,7 +104,7 @@ const ProductTags = () => {
   const textField = (
     <Autocomplete.TextField
       onChange={updateText}
-      label="Tags"
+      label=""
       value={inputValue}
       placeholder="Vintage, cotton, summer"
       autoComplete="off"
@@ -99,12 +133,20 @@ const ProductTags = () => {
   return (
     <LegacyStack vertical>
       <Autocomplete
+        actionBefore={{
+          accessibilityLabel: "Action label",
+          content: "Add",
+          icon: CirclePlusMinor,
+          onAction: () => {
+            console.log("actionBefore clicked!");
+          },
+        }}
         allowMultiple
         options={optionList}
         selected={selectedOptions}
         textField={textField}
         onSelect={setSelectedOptions}
-        listTitle="SUGGESTED COLLECTIONS"
+        listTitle="SUGGESTED TAGS"
         loading={isLoading}
         onLoadMoreResults={handleLoadMoreResults}
         willLoadMoreResults={willLoadMoreResults}

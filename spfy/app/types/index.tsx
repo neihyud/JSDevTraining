@@ -3,6 +3,19 @@ export interface RootState {
     specificProducts: [];
     productCollection: [];
     productTags: [];
-    type: "";
+    allProducts: Product[];
+    allCollection: ProductCollection[];
   };
+}
+
+export interface Product {
+  id: string;
+  url: string;
+  name: string;
+  location: string;
+}
+
+export interface ProductCollection {
+  id: string;
+  name: string;
 }
