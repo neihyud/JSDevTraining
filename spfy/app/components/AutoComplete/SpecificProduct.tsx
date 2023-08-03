@@ -24,7 +24,6 @@ const SpecificProduct = ({ handleFocusSpecificProduct }) => {
 
   const dispatch = useDispatch();
   const removeSpecificProducts = (id) => {
-    console.log("id: ", id);
     dispatch({ type: "REMOVE_SPECIFIC_PRODUCT", payload: id });
   };
 
@@ -74,7 +73,7 @@ const SpecificProductsCard = ({ onRemove, selectedOptions }) => {
               media={media}
               accessibilityLabel={`View details for ${name}`}
             >
-              <div style={{ padding: "20px 0" }}>
+              <div style={{ padding: "0px 0" }}>
                 <Text variant="bodyMd" fontWeight="bold" as="h3">
                   {name}
                 </Text>
@@ -84,7 +83,6 @@ const SpecificProductsCard = ({ onRemove, selectedOptions }) => {
                     top: 5,
                     right: 5,
                     padding: "5px",
-                    // backgroundColor: "red",
                   }}
                   onClick={() => onRemove(id)}
                 >

@@ -160,7 +160,7 @@ export default function Index() {
                     </Button>
                   )}
                   <Button loading={isLoading} primary onClick={generateProduct}>
-                    Generate a product
+                    Generate a product  
                   </Button>
                 </HorizontalStack>
                 {actionData?.product && (

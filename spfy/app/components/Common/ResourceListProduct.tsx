@@ -9,10 +9,6 @@ import {
 import { CancelMajor } from "@shopify/polaris-icons";
 
 
-import indexStyles from "./ResourceListProduct.css";
-
-export const links = () => [{ rel: "stylesheet", href: indexStyles }];
-
 const ResourceListProduct = ({ products, onRemove }) => {
   return (
     <LegacyCard>
