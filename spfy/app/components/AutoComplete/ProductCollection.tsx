@@ -8,9 +8,10 @@ import {
   Icon,
   Thumbnail,
 } from "@shopify/polaris";
-import React, { useState, useCallback } from "react";
-
+import React, { useState, useCallback, useEffect } from "react";
+import type { RootState } from "../../types/index";
 import { CancelMajor } from "@shopify/polaris-icons";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductCollection = () => {
   const paginationInterval = 25;
@@ -27,6 +28,25 @@ const ProductCollection = () => {
   const [willLoadMoreResults, setWillLoadMoreResults] = useState(true);
   const [visibleOptionIndex, setVisibleOptionIndex] =
     useState(paginationInterval);
+
+  const selectedOptionsStore = useSelector(
+    (state: RootState) => state.products.productCollection
+  );
+
+  const dispatch = useDispatch();
+  const [isMount, setIsMount] = useState(false);
+
+  useEffect(() => {
+    if (!isMount) {
+      setSelectedOptions(selectedOptionsStore);
+      setIsMount(!isMount);
+    } else {
+      dispatch({
+        type: "UPDATE_PRODUCT_COLLECTION",
+        payload: [...selectedOptions],
+      });
+    }
+  }, []);
 
   const removeTag = useCallback(
     (tag: string) => () => {
@@ -103,9 +123,7 @@ const ProductCollection = () => {
       })
     : null;
   const optionList = options.slice(0, visibleOptionIndex);
-  const selectedTagMarkup = hasSelectedOptions ? (
-    <LegacyCard>{tagsMarkup}</LegacyCard>
-  ) : null;
+  const selectedTagMarkup = hasSelectedOptions ? tagsMarkup : null;
 
   return (
     <LegacyStack vertical>

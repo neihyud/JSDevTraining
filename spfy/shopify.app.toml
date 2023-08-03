@@ -2,7 +2,7 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://holly-employed-surrounding-spend.trycloudflare.com"
+application_url = "https://leu-electrical-smaller-rain.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://holly-employed-surrounding-spend.trycloudflare.com/auth/callback",
-  "https://holly-employed-surrounding-spend.trycloudflare.com/auth/shopify/callback",
-  "https://holly-employed-surrounding-spend.trycloudflare.com/api/auth/callback"
+  "https://leu-electrical-smaller-rain.trycloudflare.com/auth/callback",
+  "https://leu-electrical-smaller-rain.trycloudflare.com/auth/shopify/callback",
+  "https://leu-electrical-smaller-rain.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

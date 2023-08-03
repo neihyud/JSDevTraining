@@ -7,6 +7,11 @@ const initState = {
 
 const productReducer = (state = initState, action) => {
   switch (action.type) {
+    case "UPDATE_SPECIFIC_PRODUCT":
+      return {
+        ...state,
+        specificProducts: [...action.payload],
+      };
     case "ADD_SPECIFIC_PRODUCT":
       return {
         ...state,
@@ -20,6 +25,12 @@ const productReducer = (state = initState, action) => {
 
           return action.payload != id;
         }),
+      };
+
+    case "UPDATE_PRODUCT_COLLECTION":
+      return {
+        ...state,
+        productCollection: [...action.payload],
       };
 
     case "ADD_PRODUCT_COLLECTION":
