@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   AppProvider as PolarisAppProvider,
   Page,
@@ -20,6 +20,8 @@ import store from "~/store/index";
 import ProductCollection from "~/components/AutoComplete/ProductCollection";
 import ProductTags from "~/components/AutoComplete/ProductTags";
 import SpecificProduct from "~/components/AutoComplete/SpecificProduct";
+
+import { callShopifyGraphQL } from "~/api/product";
 
 const PricingRulePage = () => {
   const [storeName, setStoreName] = useState("");
@@ -55,7 +57,7 @@ const PricingRulePage = () => {
     ["t shirt", "all variant prices - 20%"],
     ["Gift Card", "all variant prices - 20%"],
     ["Stitch", "160.000"],
-    ["Ayres Chambray", "all variant prices - 20%"], 
+    ["Ayres Chambray", "all variant prices - 20%"],
     ["Derby Tier Backpack", "all variant prices - 20%"],
     ["Chevron", "all variant prices - 20%"],
     ["% 5 Panel Camp cap", "all variant prices - 20%"],
@@ -104,6 +106,36 @@ const PricingRulePage = () => {
     default:
       additionalFieldProduct = <></>;
   }
+  // =========================
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      const query = `
+      {
+        products (first: 3) {
+          edges {
+            node {
+              title
+            }
+          }
+        }
+      }
+      `;
+
+      try {
+        const data = await callShopifyGraphQL(query);
+        setProducts(data.products.edges);
+        console.log("DATA: ", data);
+      } catch (error) {
+        // Xử lý lỗi nếu cần thiết
+        console.log("ERROR: ", error);
+      }
+    };
+
+    getProducts();
+  }, []);
 
   return (
     <Provider store={store}>
