@@ -2,7 +2,7 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://emperor-container-prominent-broken.trycloudflare.com"
+application_url = "https://av-crime-likelihood-seat.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://emperor-container-prominent-broken.trycloudflare.com/auth/callback",
-  "https://emperor-container-prominent-broken.trycloudflare.com/auth/shopify/callback",
-  "https://emperor-container-prominent-broken.trycloudflare.com/api/auth/callback"
+  "https://av-crime-likelihood-seat.trycloudflare.com/auth/callback",
+  "https://av-crime-likelihood-seat.trycloudflare.com/auth/shopify/callback",
+  "https://av-crime-likelihood-seat.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
