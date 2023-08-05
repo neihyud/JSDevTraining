@@ -7,7 +7,6 @@ const ProductResourcePicker = ({ openModal, setOpenTypeModal }) => {
   const dispatch = useDispatch()
 
   const handleSelectionProduct = (selectionPayload) => {
-    console.log("SPECIFIC: ", selectionPayload)
     setOpenTypeModal('')
     dispatch({
       type: 'UPDATE_SPECIFIC_PRODUCT',

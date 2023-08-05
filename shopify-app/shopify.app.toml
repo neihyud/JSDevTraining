@@ -2,7 +2,7 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://disc-imperial-seat-house.trycloudflare.com"
+application_url = "https://grams-supporters-goals-investigations.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://disc-imperial-seat-house.trycloudflare.com/auth/callback",
-  "https://disc-imperial-seat-house.trycloudflare.com/auth/shopify/callback",
-  "https://disc-imperial-seat-house.trycloudflare.com/api/auth/callback"
+  "https://grams-supporters-goals-investigations.trycloudflare.com/auth/callback",
+  "https://grams-supporters-goals-investigations.trycloudflare.com/auth/shopify/callback",
+  "https://grams-supporters-goals-investigations.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

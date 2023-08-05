@@ -15,7 +15,7 @@ import {
 
 import { CancelMajor } from '@shopify/polaris-icons'
 
-const ProductCollection = ({ onFocusSpecificProduct }) => {
+const ProductCollection = ({ onFocusSpecificProduct, error }) => {
   return (
     <LegacyStack vertical>
       <TextField
@@ -23,6 +23,7 @@ const ProductCollection = ({ onFocusSpecificProduct }) => {
         placeholder="Vintage, cotton, summer"
         autoComplete="off"
         onFocus={onFocusSpecificProduct}
+        error={error}
       />
       <LegacyCard>
         <SpecificProductsCard></SpecificProductsCard>

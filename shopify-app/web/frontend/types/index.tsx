@@ -29,3 +29,14 @@ export interface Image {
 export interface ImageProduct {
   originalSrc: string
 }
+
+export interface IErrorForm {
+  storeName: string
+  priority: string
+  empField2: boolean
+  empField3: boolean
+  empField4: boolean
+  amount1: string
+  amount2: string
+  amount3: string
+}
