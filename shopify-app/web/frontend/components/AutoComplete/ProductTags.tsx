@@ -1,46 +1,30 @@
+//  @ts-nocheck
 import { Autocomplete, Tag, LegacyStack } from '@shopify/polaris'
 import React, { useState, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../types'
 import { CirclePlusMinor } from '@shopify/polaris-icons'
-// import { useAppQuery } from '../../hooks'
+import { useAppQuery } from '../../hooks'
 
 const ProductTags = ({ error }) => {
   const paginationInterval = 25
 
-  // const {
-  //   data,
-  //   refetch: refetchProductCount,
-  //   isLoading: isLoadingCount,
-  //   isRefetching: isRefetchingCount,
-  // } = useAppQuery({
-  //   url: '/api/shop/productTags',
-  //   reactQueryOptions: {
-  //     onSuccess: () => {
-  //       setIsLoading(false)
-  //     },
-  //   },
-  // })
+  const [isLoading, setIsLoading] = useState(true)
 
-  // console.log('Return: ', { data, refetchProductCount })
+  const { data = {} } = useAppQuery({
+    url: '/api/shop/productTags',
+    reactQueryOptions: {
+      onSuccess: () => {
+        setIsLoading(false)
+      },
+    },
+  })
 
-  const [productTag, setProductTag] = useState([
-    { id: '1', name: 'tag 1' },
-    { id: '2', name: 'tag 2' },
-    { id: '3', name: 'tag 3' },
-    { id: '4', name: 'tag 4' },
-    { id: '5', name: 'tag 5' },
-  ])
-
-  const deselectedOptions = productTag.map((_, index) => ({
-    value: `${_.id}`,
-    label: `${_.name}`,
-  }))
+  const [deselectedOptions, setDeselectedOptions] = useState([])
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
-  const [options, setOptions] = useState(deselectedOptions)
-  const [isLoading, setIsLoading] = useState(false)
+  const [options, setOptions] = useState([])
   const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
   const [visibleOptionIndex, setVisibleOptionIndex] =
     useState(paginationInterval)
@@ -73,14 +57,22 @@ const ProductTags = ({ error }) => {
   )
   /// ====== =======
   const dispatch = useDispatch()
-  const [isMount, setIsMount] = useState(false)
 
-  if (!isMount) {
+  useEffect(() => {
+    let { data: temp = [] } = data
+
+    const deselectedOptions = temp.map((_, index) => ({
+      value: `${_.name}`,
+      label: `${_.name}`,
+    }))
+
+    setDeselectedOptions(deselectedOptions)
+    setOptions(deselectedOptions)
+  }, [data])
+
+  useEffect(() => {
     setSelectedOptions(selectedOptionsTag)
-    setIsMount(!isMount)
-    // need remove
-    setProductTag([...productTag])
-  }
+  }, [])
 
   useEffect(() => {
     dispatch({
@@ -113,7 +105,6 @@ const ProductTags = ({ error }) => {
       )
 
       setOptions(resultOptions)
-      //   setInputValue;
     },
     [deselectedOptions]
   )

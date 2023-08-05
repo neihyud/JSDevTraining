@@ -8,7 +8,7 @@ import shopify from './shopify.js'
 import productCreator from './product-creator.js'
 import GDPRWebhookHandlers from './gdpr.js'
 
-// import { getProductTags } from './service/product.js'
+import { getProductTags } from './service/product.js'
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || '3000',
@@ -62,21 +62,28 @@ app.get('/api/products/create', async (_req, res) => {
   res.status(status).send({ success: status === 200, error })
 })
 
-// app.get('/api/shop/productTags', async (_req, res) => {
-//   let status = 200
-//   let error = null
+app.get('/api/shop/productTags', async (_req, res) => {
+  let status = 200
+  let error = null
 
-//   try {
-//     const data = await getProductTags(res.locals.shopify.session)
-//     console.log('Data Tags: ', data)
-//     return data
-//   } catch (e) {
-//     console.log(`Failed to process get product tag: ${e.message}`)
-//     status = 500
-//     error = e.message
-//   }
-//   res.status(status).send({ success: status === 200, error })
-// })
+  try {
+    const tags = await getProductTags(res.locals.shopify.session)
+
+    console.log('DATA: ', tags)
+    // // return 2
+    // return data
+    return res
+      .status(status)
+      .send({ success: status === 200, error, data: tags ? tags : [] })
+  } catch (e) {
+    console.log(`Failed to process get product tag: ${e.message}`)
+    status = 500
+    error = e.message
+    return res
+      .status(status)
+      .send({ success: status === 200, error, message: 'Error' })
+  }
+})
 
 app.use(shopify.cspHeaders())
 app.use(serveStatic(STATIC_PATH, { index: false }))
