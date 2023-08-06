@@ -1,6 +1,6 @@
 import { Page } from '@shopify/polaris'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Provider, ResourcePicker } from '@shopify/app-bridge-react'
 import { useAppQuery } from '../hooks'
 import { useEffect } from 'react'
@@ -10,31 +10,45 @@ export default function PageName() {
     console.log('selection: ', selectionPayload)
   }
 
-  const {
-    data  
-  } = useAppQuery({
-    url: '/api/shop/productTags',
+  // const {
+  //   data
+  // } = useAppQuery({
+  //   url: '/api/shop/productTags',
+  //   reactQueryOptions: {
+  //     onSuccess: () => {
+  //       // setIsLoading(false)
+  //       console.log("loading false")
+  //     },
+  //   },
+  // })
+
+  const [isLoading, setIsLoading] = useState(true)
+
+  const query =
+    '{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }'
+  const { data = {} } = useAppQuery({
+    url: '/api/product/tablePrice',
+    fetchInit: {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: query }),
+    },
     reactQueryOptions: {
       onSuccess: () => {
-        // setIsLoading(false)
-        console.log("loading false")
+        setIsLoading(false)
+        console.log('DATA TABLE: ', data)
+      },
+      onError: (error) => {
+        console.log('Error: ', error)
       },
     },
   })
 
-  //   useEffect(() => {
-  //     const fetchData = async () => {
-  //       try {
-  //         const response = await fetch('/api/shop/productTags')
-  //         console.log('Json: ', await response.json())
-  //       } catch (err) {
-  //         console.log(err)
-  //       }
-  //     }
-  //     fetchData()
-  //   }, [])
-
-  console.log('Return: ', data)
+  if (!isLoading) {
+    console.log('Return: ', data)
+  }
 
   return (
     <Page>

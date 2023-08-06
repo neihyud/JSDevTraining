@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { Card, TextContainer, Text } from "@shopify/polaris";
-import { Toast } from "@shopify/app-bridge-react";
-import { useTranslation } from "react-i18next";
-import { useAppQuery, useAuthenticatedFetch } from "../hooks";
+import { useState } from 'react'
+import { Card, TextContainer, Text } from '@shopify/polaris'
+import { Toast } from '@shopify/app-bridge-react'
+import { useTranslation } from 'react-i18next'
+import { useAppQuery, useAuthenticatedFetch } from '../hooks'
 
 export function ProductsCard() {
-  const emptyToastProps = { content: null };
-  const [isLoading, setIsLoading] = useState(true);
-  const [toastProps, setToastProps] = useState(emptyToastProps);
-  const fetch = useAuthenticatedFetch();
-  const { t } = useTranslation();
-  const productsCount = 5;
+  const emptyToastProps = { content: null }
+  const [isLoading, setIsLoading] = useState(true)
+  const [toastProps, setToastProps] = useState(emptyToastProps)
+  const fetch = useAuthenticatedFetch()
+  const { t } = useTranslation()
+  const productsCount = 5
 
   const {
     data,
@@ -18,46 +18,64 @@ export function ProductsCard() {
     isLoading: isLoadingCount,
     isRefetching: isRefetchingCount,
   } = useAppQuery({
-    url: "/api/products/count",
+    url: '/api/products/count',
     reactQueryOptions: {
       onSuccess: () => {
-        setIsLoading(false);
+        setIsLoading(false)
       },
     },
-  });
+  })
+
+  // const query =
+  //   '{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }'
+  // const { data = {} } = useAppQuery({
+  //   url: '/api/product/tablePrice',
+  //   // method: 'POST',
+  //   // body: JSON.stringify(query),
+  //   fetchInit: { query },
+  //   reactQueryOptions: {
+  //     onSuccess: () => {
+  //       console.log('DATA TABLE: ', data)
+  //       setIsLoading(false)
+  //     },
+  //     onError: (error) => {
+  //       console.log(error)
+  //     },
+  //   },
+  // })
 
   const toastMarkup = toastProps.content && !isRefetchingCount && (
     <Toast {...toastProps} onDismiss={() => setToastProps(emptyToastProps)} />
-  );
+  )
 
   const handlePopulate = async () => {
-    setIsLoading(true);
-    const response = await fetch("/api/products/create");
+    setIsLoading(true)
+    const response = await fetch('/api/products/create')
 
     if (response.ok) {
-      await refetchProductCount();
+      await refetchProductCount()
       setToastProps({
-        content: t("ProductsCard.productsCreatedToast", {
+        content: t('ProductsCard.productsCreatedToast', {
           count: productsCount,
         }),
-      });
+      })
     } else {
-      setIsLoading(false);
+      setIsLoading(false)
       setToastProps({
-        content: t("ProductsCard.errorCreatingProductsToast"),
+        content: t('ProductsCard.errorCreatingProductsToast'),
         error: true,
-      });
+      })
     }
-  };
+  }
 
   return (
     <>
       {toastMarkup}
       <Card
-        title={t("ProductsCard.title")}
+        title={t('ProductsCard.title')}
         sectioned
         primaryFooterAction={{
-          content: t("ProductsCard.populateProductsButton", {
+          content: t('ProductsCard.populateProductsButton', {
             count: productsCount,
           }),
           onAction: handlePopulate,
@@ -65,15 +83,15 @@ export function ProductsCard() {
         }}
       >
         <TextContainer spacing="loose">
-          <p>{t("ProductsCard.description")}</p>
+          <p>{t('ProductsCard.description')}</p>
           <Text as="h4" variant="headingMd">
-            {t("ProductsCard.totalProductsHeading")}
+            {t('ProductsCard.totalProductsHeading')}
             <Text variant="bodyMd" as="p" fontWeight="semibold">
-              {isLoadingCount ? "-" : data.count}
+              {isLoadingCount ? '-' : data.count}
             </Text>
           </Text>
         </TextContainer>
       </Card>
     </>
-  );
+  )
 }

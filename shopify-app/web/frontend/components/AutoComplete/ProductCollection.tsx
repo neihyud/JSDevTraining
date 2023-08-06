@@ -37,6 +37,8 @@ const SpecificProductsCard = () => {
     (state: RootState) => state.products.productCollection
   )
 
+  console.log('Collection Products: ', products)
+
   const dispatch = useDispatch()
   const removeSpecificProducts = (id) => {
     dispatch({ type: 'REMOVE_PRODUCT_COLLECTION', payload: id })
@@ -48,7 +50,6 @@ const SpecificProductsCard = () => {
         items={products}
         renderItem={(item) => {
           const { id, title, image } = item
-          console.log('Image: ', image)
           const media = (
             <Thumbnail
               source={

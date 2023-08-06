@@ -85,6 +85,31 @@ app.get('/api/shop/productTags', async (_req, res) => {
   }
 })
 
+app.post('/api/product/tablePrice', async (_req, res) => {
+  let status = 200
+  let error = null
+
+  console.log('Post request')
+  const data = _req.body
+  console.log('DATA POST: ', data)
+  try {
+    // const data = await getDataTable(res.locals.shopify.session, query)
+  } catch (error) {}
+
+  return res.status(400).json({ data })
+})
+
+app.get('/api/product/tablePrice', async (_req, res) => {
+  let status = 200
+  let error = null
+
+  console.log('Get request')
+  console.log('_Req =====================', _req)
+  console.log('_Res =====================', res)
+
+  return res.status(200).send({ success: false })
+})
+
 app.use(shopify.cspHeaders())
 app.use(serveStatic(STATIC_PATH, { index: false }))
 

@@ -50,7 +50,6 @@ const SpecificProductsCard = () => {
         renderItem={(item) => {
           const { id, title, images = [] } = item
           // const { src = '' } = item
-          console.log('IMAGES: ', images)
           const media = (
             <Thumbnail
               source={

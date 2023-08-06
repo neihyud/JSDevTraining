@@ -95,7 +95,6 @@ const productReducer = (state = initState, action) => {
         specificProducts: [...action.payload],
       }
     case 'ADD_SPECIFIC_PRODUCT':
-      console.log('Specific product: ', action.payload)
 
       return {
         ...state,
@@ -110,8 +109,6 @@ const productReducer = (state = initState, action) => {
       }
 
     case 'UPDATE_PRODUCT_COLLECTION':
-      console.log('Specific product: ', action.payload)
-
       return {
         ...state,
         productCollection: [...action.payload],

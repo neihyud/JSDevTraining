@@ -1,4 +1,6 @@
+// @ts-nocheck
 import React, { useCallback, useEffect, useState } from 'react'
+
 import { useSelector } from 'react-redux'
 import {
   AppProvider as PolarisAppProvider,
@@ -23,6 +25,8 @@ import SpecificProduct from '../components/AutoComplete/SpecificProduct'
 import ProductResourcePicker from '../components/Modals/ProductResourcePicker'
 import CollectionResourcePicker from '../components/Modals/CollectionResourcePicker'
 import { RootState, IErrorForm } from '../types'
+import { useAppQuery } from '../hooks'
+import TablePrice from '../components/TablePrice'
 
 const PricingRulePage = () => {
   const [error, setError] = useState<IErrorForm>({
@@ -37,6 +41,8 @@ const PricingRulePage = () => {
   })
 
   const [storeName, setStoreName] = useState('')
+
+  // const [isLoading, setIsLoading] = useState(true)
 
   const handleStoreName = useCallback((newValue) => {
     setStoreName(newValue)
@@ -67,17 +73,6 @@ const PricingRulePage = () => {
     { label: 'Disable', value: 'disable' },
   ]
 
-  // Table
-  const rows = [
-    ['t shirt', 'all variant prices - 20%'],
-    ['Gift Card', 'all variant prices - 20%'],
-    ['Stitch', '160.000'],
-    ['Ayres Chambray', 'all variant prices - 20%'],
-    ['Derby Tier Backpack', 'all variant prices - 20%'],
-    ['Chevron', 'all variant prices - 20%'],
-    ['% 5 Panel Camp cap', 'all variant prices - 20%'],
-  ]
-
   // Apply to Product
 
   const [selectedProduct, setSelectedProduct] = useState(['1'])
@@ -98,8 +93,6 @@ const PricingRulePage = () => {
   const [amount, setAmount] = useState('0')
 
   const handleAmount = (newValue) => {
-    console.log('newValue change: ', newValue)
-
     setAmount(newValue)
     setError((error) => ({
       ...error,
@@ -134,17 +127,20 @@ const PricingRulePage = () => {
 
   // ================= Common ========================
 
-  let lenSpecificProduct = useSelector(
+  const specificsProducts = useSelector(
     (state: RootState) => state.products.specificProducts
-  ).length
+  )
+  let lenSpecificProduct = specificsProducts.length
 
-  let letCollectionProduct = useSelector(
+  const collectionProduct = useSelector(
     (state: RootState) => state.products.productCollection
-  ).length
+  )
+  let letCollectionProduct = collectionProduct.length
 
-  let lenTagProduct = useSelector(
+  const tagProduct = useSelector(
     (state: RootState) => state.products.productTags
-  ).length
+  )
+  let lenTagProduct = tagProduct.length
 
   useEffect(() => {
     setError((error) => ({ ...error, [`empField${selectedProduct[0]}`]: '' }))
@@ -182,16 +178,128 @@ const PricingRulePage = () => {
     }
 
     if (Object.keys(err).length > 0) {
-      console.log('Have Error')
+      setError(err)
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     } else {
       console.log('No error')
+      handleTable()
     }
-
-    setError(err)
   }
 
-  let additionalFieldProduct: JSX.Element | null = <></>
+  const [query, setQuery] = useState('')
+
+  // const { data = {} } = useAppQuery({
+  //   url: '/api/product/tablePrice',
+  //   fetchInit: {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ query: query }),
+  //   },
+  //   reactQueryOptions: {
+  //     // disable this query from automatically running.
+  //     enabled: query ? true : false,
+  //     onSuccess: () => {
+  //       setIsLoading(false)
+  //     },
+  //     onError: () => {
+  //       console.log('Error: ')
+  //     },
+  //     queryFn: async () => {
+  //       console.log('QueryFn')
+  //       return 'sga'
+  //     },
+  //   },
+  // })
+
+  const handleTable = () => {
+    let query = ''
+    let subQuery = ''
+
+    switch (selectedProduct[0]) {
+      case '1':
+        query = `{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }`
+        break
+      case '2':
+        subQuery = specificsProducts
+          .map((product) => {
+            const arr = product.id.split('/')
+            return `id:${arr[arr.length - 1]}`
+          })
+          .join(' OR ')
+
+        query = `{
+            products (first: 25, query:"${subQuery}") {
+              edges {
+                node {
+                  id
+                  title
+                }
+              }
+            }
+          }`
+        break
+      case '3':
+        subQuery = collectionProduct
+          .map((collection) => {
+            const arr = collection.id.split('/')
+            return `id:${arr[arr.length - 1]}`
+          })
+          .join(' OR ')
+
+        query = `{
+            collections (first:25, query:"${subQuery}") {
+              edges {
+                node {
+                  products(first:25) {
+                    edges {
+                      node {
+                        title
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }`
+        break
+      default:
+        query = ''
+    }
+
+    console.log('Query: ', query)
+
+    // const { data = {} } = useAppQuery({
+    //   url: '/api/product/tablePrice',
+    //   fetchInit: {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ query: query }),
+    //   },
+    //   reactQueryOptions: {
+    //     onSuccess: () => {
+    //       setIsLoading(false)
+    //       console.log('DATA TABLE: ', data)
+    //     },
+    //     onError: (error) => {
+    //       console.log('Error: ', error)
+    //     },
+    //   },
+    // })
+    setQuery(() => query)
+    console.log('End')
+  }
+
+  // if (!isLoading) {
+  //   console.log('Get Data Table success !')
+  //   console.log('DATA TABLE MAIN: ', data)
+  //   // setQuery(() => 's')
+  // }
+
+  let additionalFieldProduct = <></>
 
   switch (selectedProduct[0]) {
     case '2':
@@ -319,13 +427,15 @@ const PricingRulePage = () => {
             </FormLayout>
           </LegacyCard>
         </Layout.Section>
-        <Layout.Section secondary>
+
+        <TablePrice query={query} setQuery={setQuery} />
+        {/* <Layout.Section secondary>
           <DataTable
             columnContentTypes={['text', 'text']}
             headings={['Title', 'Modified Price']}
             rows={rows}
           />
-        </Layout.Section>
+        </Layout.Section> */}
       </Layout>
 
       <ProductResourcePicker
