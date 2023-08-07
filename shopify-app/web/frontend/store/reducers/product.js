@@ -90,7 +90,6 @@ const initState = {
 const productReducer = (state = initState, action) => {
   switch (action.type) {
     case 'UPDATE_SPECIFIC_PRODUCT':
-      console.log('Action Payload: ', action.payload)
       return {
         ...state,
         specificProducts: [...action.payload],
@@ -102,7 +101,6 @@ const productReducer = (state = initState, action) => {
       }
       break
     case 'REMOVE_SPECIFIC_PRODUCT':
-      console.log('Action specific: ', action.payload)
       return {
         ...state,
         specificProducts: state.specificProducts.filter((id) => {
@@ -111,7 +109,6 @@ const productReducer = (state = initState, action) => {
       }
       break
     case 'UPDATE_PRODUCT_COLLECTION':
-      console.log('ACTION ', action.payload)
       return {
         ...state,
         productCollection: [...action.payload],

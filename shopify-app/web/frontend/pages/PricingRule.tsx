@@ -50,6 +50,8 @@ const PricingRulePage = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
+  const [rows, setRows] = useState([])
+
   const handleFocusSpecificProduct = () => {
     setIsOpenModal(true)
   }
@@ -110,31 +112,31 @@ const PricingRulePage = () => {
     }))
   }
 
-  const handleBlurAmount = () => {
-    let amountTemp = parseFloat(amount)
+  // const handleBlurAmount = () => {
+  //   let amountTemp = parseFloat(amount)
 
-    if (selectedPrice[0] == '1' && amountTemp < 1) {
-      amountTemp = 1
-    } else if (selectedPrice[0] == '2') {
-      amountTemp = Math.ceil(amountTemp) < 1 ? 1 : Math.ceil(amountTemp)
-    } else if (
-      selectedPrice[0] == '3' &&
-      (amountTemp < 1 || amountTemp > 100)
-    ) {
-      setError((error) => ({
-        ...error,
-        amount3: 'Discount value must be between 1 and 100',
-      }))
-    } else if (selectedPrice[0] == '2' && amountTemp < 1) {
-      setError((error) => ({
-        ...error,
-        amount2: 'Discount value must be greater than 0',
-      }))
-    }
+  //   if (selectedPrice[0] == '1' && amountTemp < 1) {
+  //     amountTemp = 1
+  //   } else if (selectedPrice[0] == '2') {
+  //     amountTemp = Math.ceil(amountTemp) < 1 ? 1 : Math.ceil(amountTemp)
+  //   } else if (
+  //     selectedPrice[0] == '3' &&
+  //     (amountTemp < 1 || amountTemp > 100)
+  //   ) {
+  //     setError((error) => ({
+  //       ...error,
+  //       amount3: 'Discount value must be between 1 and 100',
+  //     }))
+  //   } else if (selectedPrice[0] == '2' && amountTemp < 1) {
+  //     setError((error) => ({
+  //       ...error,
+  //       amount2: 'Discount value must be greater than 0',
+  //     }))
+  //   }
 
-    console.log('AmountTemp: ', amountTemp)
-    setAmount(amountTemp.toString())
-  }
+  //   console.log('AmountTemp: ', amountTemp)
+  //   setAmount(amountTemp.toString())
+  // }
 
   // ================= Common ========================
 
@@ -178,12 +180,13 @@ const PricingRulePage = () => {
 
     console.log('SelectedPrice[0]: ', selectedPrice[0])
 
-    console.log('Amount: ', amount.trim().length)
     if (
-      (selectedPrice[0] == '3' && amount.trim().length == 0) ||
-      parseFloat(amount) < 1 ||
-      parseFloat(amount) > 100
+      selectedPrice[0] == '3' &&
+      (amount.trim().length == 0 ||
+        parseFloat(amount) < 1 ||
+        parseFloat(amount) > 100)
     ) {
+      console.log('BW: ', selectedPrice[0])
       err.amount3 = 'Discount value must be between 1 and 100'
     } else if (
       selectedPrice[0] == '2' &&
@@ -211,11 +214,10 @@ const PricingRulePage = () => {
       setRows([])
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
 
+      console.log('Prev handle table ...')
       handleTable()
     }
   }
-
-  const [rows, setRows] = useState([])
 
   const handleTable = async () => {
     let query = ''
@@ -227,8 +229,8 @@ const PricingRulePage = () => {
         break
       case '2':
         subQuery = specificsProducts
-          .map((product) => {
-            const arr = product.id.split('/')
+          .map((id) => {
+            const arr = id.split('/')
             return `id:${arr[arr.length - 1]}`
           })
           .join(' OR ')
@@ -252,8 +254,8 @@ const PricingRulePage = () => {
         break
       case '3':
         subQuery = collectionProduct
-          .map((collection) => {
-            const arr = collection.id.split('/')
+          .map((id) => {
+            const arr = id.split('/')
             return `id:${arr[arr.length - 1]}`
           })
           .join(' OR ')
@@ -312,6 +314,7 @@ const PricingRulePage = () => {
     }
 
     console.log('Query Table: ', query)
+
     const res = await fetch('/api/product/tablePrice', {
       method: 'POST',
       headers: {
@@ -323,7 +326,6 @@ const PricingRulePage = () => {
 
     const { data = [] } = await res.json()
 
-    console.log('DATA: ', data)
     const rowsTemp = data.map((row, index) => {
       let newPrice = null
       if (selectedPrice[0] == '1') {
@@ -338,8 +340,6 @@ const PricingRulePage = () => {
     })
 
     setRows(rowsTemp)
-
-    console.log('End')
   }
 
   let additionalFieldProduct = <></>

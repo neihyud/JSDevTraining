@@ -17,17 +17,13 @@ const ProductCollection = ({ error }) => {
   const [deselectedOptions, setDeselectedOptions] = useState([])
 
   useEffect(async () => {
-    console.log('USE EFFECT running ...')
     const res = await fetch('/api/collections')
-    console.log('RES: ', res)
     const { data = [] } = await res.json()
 
     const deselectedOptions = data.map((_, index) => ({
       value: `${_.id}`,
       label: `${_.title}`,
     }))
-
-    console.log('DeselectedOptions: ', deselectedOptions)
 
     setDeselectedOptions(deselectedOptions)
     setOptions(deselectedOptions)
@@ -162,7 +158,7 @@ const ProductCollectionsCard = ({ onRemove, selectedOptions }) => {
     return selectedOptions.includes(product.id)
   })
 
-  console.log('Products: ', products)
+  // console.log('Products: ', products)
   return <ResourceListProduct products={products} onRemove={onRemove} />
 }
 

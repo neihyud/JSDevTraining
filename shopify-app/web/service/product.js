@@ -30,7 +30,6 @@ export async function getProductTags(session) {
 
 export const getDataTable = async (session, query, type) => {
   const client = new shopify.api.clients.Graphql({ session })
-  console.log('Query Validator: ', typeof query)
   try {
     const { body = {} } = await client.query({
       data: {
@@ -140,7 +139,6 @@ export const getProducts = async (session) => {
 
 export const getCollections = async (session) => {
   const client = new shopify.api.clients.Graphql({ session })
-  console.log('SERVICE COLLECTION: ')
   const query = `{
                     collections (first: 25) {
                       edges {

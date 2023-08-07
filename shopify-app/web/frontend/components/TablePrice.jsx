@@ -23,7 +23,7 @@ const TablePrice = ({ rows, isLoading }) => {
               justifyContent: 'center'
             }}
           >
-            <Spinner size="large" />;
+            <Spinner size="large" />
           </div>
         )}
       </Layout.Section>

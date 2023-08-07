@@ -30,7 +30,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   >([])
 
   const saveModal = () => {
-    console.log('SelectedItems: ', selectedItems)
     openModal((isOpen) => !isOpen)
     dispatch({
       type: 'UPDATE_SPECIFIC_PRODUCT',
@@ -53,7 +52,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     (state: RootState) => state.products.specificProducts
   )
   useEffect(async () => {
-    console.log('Use Effect running ...')
     const res = await fetch('/api/products')
 
     const { data = [] } = await res.json()
