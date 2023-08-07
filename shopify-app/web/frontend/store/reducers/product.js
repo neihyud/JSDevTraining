@@ -90,30 +90,33 @@ const initState = {
 const productReducer = (state = initState, action) => {
   switch (action.type) {
     case 'UPDATE_SPECIFIC_PRODUCT':
+      console.log('Action Payload: ', action.payload)
       return {
         ...state,
         specificProducts: [...action.payload],
       }
     case 'ADD_SPECIFIC_PRODUCT':
-
       return {
         ...state,
         specificProducts: [...state.specificProducts, action.payload],
       }
+      break
     case 'REMOVE_SPECIFIC_PRODUCT':
+      console.log('Action specific: ', action.payload)
       return {
         ...state,
-        specificProducts: state.specificProducts.filter((product) => {
-          return action.payload != product.id
+        specificProducts: state.specificProducts.filter((id) => {
+          return action.payload != id
         }),
       }
-
+      break
     case 'UPDATE_PRODUCT_COLLECTION':
+      console.log('ACTION ', action.payload)
       return {
         ...state,
         productCollection: [...action.payload],
       }
-
+      break
     case 'REMOVE_PRODUCT_COLLECTION':
       return {
         ...state,
@@ -121,13 +124,23 @@ const productReducer = (state = initState, action) => {
           return action.payload != product.id
         }),
       }
-
+      break
     case 'UPDATE_PRODUCT_TAG':
       return {
         ...state,
         productTags: [...action.payload],
       }
-
+      break
+    case 'GET_PRODUCTS':
+      return {
+        ...state,
+        allProducts: [...action.payload],
+      }
+    case 'GET_COLLECTIONS':
+      return {
+        ...state,
+        allCollection: [...action.payload],
+      }
     default:
       return state
   }

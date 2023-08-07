@@ -8,7 +8,12 @@ import shopify from './shopify.js'
 import productCreator from './product-creator.js'
 import GDPRWebhookHandlers from './gdpr.js'
 
-import { getProductTags, getDataTable } from './service/product.js'
+import {
+  getProductTags,
+  getDataTable,
+  getProducts,
+  getCollections,
+} from './service/product.js'
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || '3000',
@@ -69,7 +74,6 @@ app.get('/api/shop/productTags', async (_req, res) => {
   try {
     const tags = await getProductTags(res.locals.shopify.session)
 
-    console.log('DATA: ', tags)
     // // return 2
     // return data
     return res
@@ -89,12 +93,10 @@ app.post('/api/product/tablePrice', async (_req, res) => {
   let status = 200
   let error = null
 
-  console.log('Post request')
-  const { query, type } = _req.body 
+  const { query, type } = _req.body
   try {
     const data = await getDataTable(res.locals.shopify.session, query, type)
 
-    console.log('DATA: ', data)
     return res.status(200).json({ data })
   } catch (error) {
     console.log('Error: ', error)
@@ -107,6 +109,41 @@ app.post('/api/product/tablePrice', async (_req, res) => {
   }
 
   // return res.status(400).json({ data })
+})
+
+app.get('/api/products', async (req, res) => {
+  let status = 200
+  let error = null
+
+  try {
+    const data = await getProducts(res.locals.shopify.session)
+
+    return res.status(200).json({ data })
+  } catch (error) {
+    console.log('Error: ', error)
+    // console.log(`Failed to process get product tag: ${e.message}`)
+    status = 500
+    // error = e.message
+    return res
+      .status(status)
+      .send({ success: status === 200, error, message: 'Error' })
+  }
+})
+
+app.get('/api/collections', async (req, res) => {
+  let status = 200
+  let error = null
+
+  try {
+    const data = await getCollections(res.locals.shopify.session)
+
+    console.log("GET COLLECTIONS")
+    return res.status(200).json({ data })
+  } catch (error) {
+    console.log('Error: ', error)
+
+    return res.status(500).send({ error, message: 'Error' })
+  }
 })
 
 app.use(shopify.cspHeaders())

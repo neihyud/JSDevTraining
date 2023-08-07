@@ -28,6 +28,8 @@ import { RootState, IErrorForm } from '../types'
 import { useAppQuery, useAuthenticatedFetch } from '../hooks'
 import TablePrice from '../components/TablePrice'
 
+import ModalSpecificProduct from '../components/Modals/ModalSpecificProduct'
+
 const PricingRulePage = () => {
   const fetch = useAuthenticatedFetch()
 
@@ -42,9 +44,15 @@ const PricingRulePage = () => {
     amount3: '',
   })
 
+  const [isOpenModal, setIsOpenModal] = useState(false)
+
   const [storeName, setStoreName] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleFocusSpecificProduct = () => {
+    setIsOpenModal(true)
+  }
 
   const handleStoreName = useCallback((newValue) => {
     setStoreName(newValue)
@@ -88,7 +96,7 @@ const PricingRulePage = () => {
   const [selectedPrice, setSelectedPrice] = useState(['1'])
 
   const handleSelectChangePrice = useCallback((value) => {
-    setAmount('0')
+    // setAmount('0')
     setSelectedPrice(value)
   }, [])
 
@@ -122,9 +130,10 @@ const PricingRulePage = () => {
         ...error,
         amount2: 'Discount value must be greater than 0',
       }))
-
-      setAmount(() => amountTemp.toString())
     }
+
+    console.log('AmountTemp: ', amountTemp)
+    setAmount(amountTemp.toString())
   }
 
   // ================= Common ========================
@@ -177,16 +186,17 @@ const PricingRulePage = () => {
     ) {
       err.amount3 = 'Discount value must be between 1 and 100'
     } else if (
-      (selectedPrice[0] == '2' && amount.trim().length == 0) ||
-      parseFloat(amount) < 1
+      selectedPrice[0] == '2' &&
+      (amount.trim().length == 0 || parseFloat(amount) < 1)
     ) {
       err.amount2 = 'Discount value must be greater than 1'
-    } else if (selectedPrice[0] == '1') {
+    } else if (selectedPrice[0] == '1' && amount < 0) {
       console.log('True')
       err.amount1 = 'Discount value must be not empty'
     }
 
     console.log('Err: ', err)
+
     if (
       err.priority ||
       err.storeName ||
@@ -301,6 +311,7 @@ const PricingRulePage = () => {
         query = ''
     }
 
+    console.log('Query Table: ', query)
     const res = await fetch('/api/product/tablePrice', {
       method: 'POST',
       headers: {
@@ -337,21 +348,21 @@ const PricingRulePage = () => {
     case '2':
       additionalFieldProduct = (
         <SpecificProduct
-          onFocusSpecificProduct={() => setOpenTypeModal('2')}
+          handleFocusSpecificProduct={handleFocusSpecificProduct}
           error={error.empField2}
         />
       )
+      // additionalFieldProduct = <></>
+
       break
     case '3':
-      additionalFieldProduct = (
-        <ProductCollection
-          onFocusSpecificProduct={() => setOpenTypeModal('3')}
-          error={error.empField3}
-        />
-      )
+      additionalFieldProduct = <ProductCollection error={error.empField3} />
+      // additionalFieldProduct = <></>
+
       break
     case '4':
       additionalFieldProduct = <ProductTags error={error.empField4} />
+
       break
     default:
       additionalFieldProduct = null
@@ -455,22 +466,16 @@ const PricingRulePage = () => {
                 onChange={handleAmount}
                 type="number"
                 error={error[`amount${selectedPrice[0]}`]}
-                onBlur={handleBlurAmount}
+                // onBlur={handleBlurAmount}
               />
             </FormLayout>
           </LegacyCard>
         </Layout.Section>
 
-        <TablePrice
-          // query={query}
-          // typePrice={selectedPrice[0]}
-          // amount={amount}
-          rows={rows}
-          isLoading={isLoading}
-        />
+        <TablePrice rows={rows} isLoading={isLoading} />
       </Layout>
 
-      <ProductResourcePicker
+      {/* <ProductResourcePicker
         openModal={openTypeModal}
         setOpenTypeModal={setOpenTypeModal}
       />
@@ -478,7 +483,10 @@ const PricingRulePage = () => {
       <CollectionResourcePicker
         openModal={openTypeModal}
         setOpenTypeModal={setOpenTypeModal}
-      />
+      /> */}
+
+      <ModalSpecificProduct openModal={setIsOpenModal} isOpen={isOpenModal} />
+
       <PageActions
         primaryAction={{
           content: 'Save',

@@ -1,95 +1,169 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import type { RootState } from '../../types'
+// =====================================
+// @ts-nocheck
+import { Autocomplete, LegacyStack } from '@shopify/polaris'
+import React, { useState, useCallback, useEffect } from 'react'
+import type { RootState } from '../../types/index'
+import { useDispatch, useSelector } from 'react-redux'
+import ResourceListProduct from '../Common/ResourceListProduct'
+import { useAuthenticatedFetch } from '../../hooks'
 
-import {
-  LegacyCard,
-  LegacyStack,
-  ResourceItem,
-  ResourceList,
-  TextField,
-  Thumbnail,
-  Text,
-  Icon,
-} from '@shopify/polaris'
+const ProductCollection = ({ error }) => {
+  const fetch = useAuthenticatedFetch()
+  const paginationInterval = 25
+  const dispatch = useDispatch()
 
-import { CancelMajor } from '@shopify/polaris-icons'
+  const [isLoading, setIsLoading] = useState(true)
 
-const ProductCollection = ({ onFocusSpecificProduct, error }) => {
+  const [deselectedOptions, setDeselectedOptions] = useState([])
+
+  useEffect(async () => {
+    console.log('USE EFFECT running ...')
+    const res = await fetch('/api/collections')
+    console.log('RES: ', res)
+    const { data = [] } = await res.json()
+
+    const deselectedOptions = data.map((_, index) => ({
+      value: `${_.id}`,
+      label: `${_.title}`,
+    }))
+
+    console.log('DeselectedOptions: ', deselectedOptions)
+
+    setDeselectedOptions(deselectedOptions)
+    setOptions(deselectedOptions)
+    setIsLoading(false)
+
+    dispatch({ type: 'GET_COLLECTIONS', payload: [...data] })
+  }, [])
+
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [options, setOptions] = useState(deselectedOptions)
+  const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
+  const [visibleOptionIndex, setVisibleOptionIndex] =
+    useState(paginationInterval)
+
+  // once call
+  const selectedOptionsStore = useSelector(
+    (state: RootState) => state.products.productCollection,
+    () => true
+  )
+
+  const [isMount, setIsMount] = useState(false)
+  if (!isMount) {
+    setSelectedOptions(selectedOptionsStore)
+    setIsMount(!isMount)
+  }
+
+  useEffect(() => {
+    dispatch({
+      type: 'UPDATE_PRODUCT_COLLECTION',
+      payload: [...selectedOptions],
+    })
+  }, [dispatch, selectedOptions])
+
+  const removeTag = useCallback(
+    (tag: string) => () => {
+      const options = [...selectedOptions]
+      options.splice(options.indexOf(tag), 1)
+      setSelectedOptions(options)
+    },
+    [selectedOptions]
+  )
+
+  const handleLoadMoreResults = useCallback(() => {
+    if (willLoadMoreResults) {
+      setIsLoading(true)
+
+      setTimeout(() => {
+        const remainingOptionCount = options.length - visibleOptionIndex
+        const nextVisibleOptionIndex =
+          remainingOptionCount >= paginationInterval
+            ? visibleOptionIndex + paginationInterval
+            : visibleOptionIndex + remainingOptionCount
+
+        setIsLoading(false)
+        setVisibleOptionIndex(nextVisibleOptionIndex)
+
+        if (remainingOptionCount <= paginationInterval) {
+          setWillLoadMoreResults(false)
+        }
+      }, 1000)
+    }
+  }, [willLoadMoreResults, visibleOptionIndex, options.length])
+
+  const updateText = useCallback(
+    (value: string) => {
+      setInputValue(value)
+
+      if (value === '') {
+        setOptions(deselectedOptions)
+        return
+      }
+
+      const filterRegex = new RegExp(value, 'i')
+      const resultOptions = deselectedOptions.filter((option) =>
+        option.label.match(filterRegex)
+      )
+
+      setOptions(resultOptions)
+    },
+    [deselectedOptions]
+  )
+
+  const textField = (
+    <Autocomplete.TextField
+      onChange={updateText}
+      label=""
+      value={inputValue}
+      placeholder="Vintage, cotton, summer"
+      autoComplete="off"
+    />
+  )
+
+  const hasSelectedOptions = selectedOptions.length > 0
+
+  const tagsMarkup = hasSelectedOptions ? (
+    <ProductCollectionsCard
+      onRemove={removeTag}
+      selectedOptions={selectedOptions}
+    />
+  ) : null
+  const optionList = options.slice(0, visibleOptionIndex)
+  const selectedTagMarkup = hasSelectedOptions ? tagsMarkup : null
+
   return (
     <LegacyStack vertical>
-      <TextField
-        label=""
-        placeholder="Vintage, cotton, summer"
-        autoComplete="off"
-        onFocus={onFocusSpecificProduct}
-        error={error}
+      <Autocomplete
+        allowMultiple
+        options={optionList}
+        selected={selectedOptions}
+        textField={textField}
+        onSelect={setSelectedOptions}
+        listTitle="SUGGESTED COLLECTIONS"
+        loading={isLoading}
+        onLoadMoreResults={handleLoadMoreResults}
+        willLoadMoreResults={willLoadMoreResults}
       />
-      <LegacyCard>
-        <SpecificProductsCard></SpecificProductsCard>
-      </LegacyCard>
+      {error && (
+        <span style={{ color: 'red', position: 'relative', top: '-10px' }}>
+          {error}
+        </span>
+      )}
+      <div style={{ width: '100%' }}>{selectedTagMarkup}</div>
     </LegacyStack>
   )
 }
 
-const SpecificProductsCard = () => {
+const ProductCollectionsCard = ({ onRemove, selectedOptions }) => {
   const products = useSelector(
-    (state: RootState) => state.products.productCollection
-  )
+    (state: RootState) => state.products.allCollection
+  ).filter((product) => {
+    return selectedOptions.includes(product.id)
+  })
 
-  console.log('Collection Products: ', products)
-
-  const dispatch = useDispatch()
-  const removeSpecificProducts = (id) => {
-    dispatch({ type: 'REMOVE_PRODUCT_COLLECTION', payload: id })
-  }
-  return (
-    <LegacyCard>
-      <ResourceList
-        resourceName={{ singular: 'customer', plural: 'customers' }}
-        items={products}
-        renderItem={(item) => {
-          const { id, title, image } = item
-          const media = (
-            <Thumbnail
-              source={
-                image
-                  ? image.originalSrc
-                  : 'data:image/png;base64,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'
-              }
-              alt="Black choker necklace"
-            />
-          )
-
-          return (
-            <ResourceItem
-              id={id}
-              url={''}
-              media={media}
-              accessibilityLabel={`View details for ${title}`}
-            >
-              <div style={{ padding: '20px 0' }}>
-                <Text variant="bodyMd" fontWeight="bold" as="h3">
-                  {title}
-                </Text>
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 5,
-                    right: 5,
-                    padding: '5px',
-                  }}
-                  onClick={() => removeSpecificProducts(id)}
-                >
-                  <Icon source={CancelMajor} color="base" />
-                </span>
-              </div>
-            </ResourceItem>
-          )
-        }}
-      />
-    </LegacyCard>
-  )
+  console.log('Products: ', products)
+  return <ResourceListProduct products={products} onRemove={onRemove} />
 }
 
 export default ProductCollection
