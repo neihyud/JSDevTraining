@@ -155,7 +155,7 @@ const PricingRulePage = () => {
       err.storeName = 'Name is required!'
     }
 
-    if (0 < parseInt(priority) || parseInt(priority) > 99) {
+    if (0 > parseInt(priority) || parseInt(priority) > 99) {
       err.priority = 'Priority must have a value between 0 and 99'
     }
 
@@ -169,13 +169,21 @@ const PricingRulePage = () => {
 
     console.log('SelectedPrice[0]: ', selectedPrice[0])
 
+    console.log('Amount: ', amount.trim().length)
     if (
-      (selectedPrice[0] == '3' && parseFloat(amount) < 1) ||
+      (selectedPrice[0] == '3' && amount.trim().length == 0) ||
+      parseFloat(amount) < 1 ||
       parseFloat(amount) > 100
     ) {
       err.amount3 = 'Discount value must be between 1 and 100'
-    } else if (selectedPrice[0] == '2' && parseFloat(amount) < 1) {
+    } else if (
+      (selectedPrice[0] == '2' && amount.trim().length == 0) ||
+      parseFloat(amount) < 1
+    ) {
       err.amount2 = 'Discount value must be greater than 1'
+    } else if (selectedPrice[0] == '1') {
+      console.log('True')
+      err.amount1 = 'Discount value must be not empty'
     }
 
     console.log('Err: ', err)
@@ -306,7 +314,6 @@ const PricingRulePage = () => {
 
     console.log('DATA: ', data)
     const rowsTemp = data.map((row, index) => {
-      console.log(`Row${index}: `, row)
       let newPrice = null
       if (selectedPrice[0] == '1') {
         newPrice = amount
@@ -319,7 +326,6 @@ const PricingRulePage = () => {
       return [row.title, row.price, newPrice]
     })
 
-    console.log('rowsTemp: ', rowsTemp)
     setRows(rowsTemp)
 
     console.log('End')
