@@ -102,30 +102,29 @@ const PricingRulePage = () => {
     }))
   }
 
-  const handleBlurAmount = () => {
-    let amountTemp = parseFloat(amount)
+  // const handleBlurAmount = () => {
+  //   let amountTemp = parseFloat(amount)
 
-    if (selectedPrice[0] == '1' && amountTemp < 1) {
-      amountTemp = 1
-    } else if (selectedPrice[0] == '2') {
-      amountTemp = Math.ceil(amountTemp) < 1 ? 1 : Math.ceil(amountTemp)
-    } else if (
-      selectedPrice[0] == '3' &&
-      (amountTemp < 1 || amountTemp > 100)
-    ) {
-      setError((error) => ({
-        ...error,
-        amount3: 'Discount value must be between 1 and 100',
-      }))
-    } else if (selectedPrice[0] == '2' && amountTemp < 1) {
-      setError((error) => ({
-        ...error,
-        amount2: 'Discount value must be greater than 0',
-      }))
-
-      setAmount(() => amountTemp.toString())
-    }
-  }
+  //   if (selectedPrice[0] == '1' && amountTemp < 1) {
+  //     amountTemp = 1
+  //   } else if (selectedPrice[0] == '2') {
+  //     amountTemp = Math.ceil(amountTemp) < 1 ? 1 : Math.ceil(amountTemp)
+  //   } else if (
+  //     selectedPrice[0] == '3' &&
+  //     (amountTemp < 1 || amountTemp > 100)
+  //   ) {
+  //     setError((error) => ({
+  //       ...error,
+  //       amount3: 'Discount value must be between 1 and 100',
+  //     }))
+  //   } else if (selectedPrice[0] == '2' && amountTemp < 1) {
+  //     setError((error) => ({
+  //       ...error,
+  //       amount2: 'Discount value must be greater than 0',
+  //     }))
+  //   }
+  //   setAmount(() => amountTemp.toString())
+  // }
 
   // ================= Common ========================
 
@@ -455,7 +454,7 @@ const PricingRulePage = () => {
                 onChange={handleAmount}
                 type="number"
                 error={error[`amount${selectedPrice[0]}`]}
-                onBlur={handleBlurAmount}
+                // onBlur={handleBlurAmount}
               />
             </FormLayout>
           </LegacyCard>
