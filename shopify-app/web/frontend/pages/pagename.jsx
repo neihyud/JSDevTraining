@@ -26,6 +26,7 @@ export default function PageName() {
 
   const query =
     '{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }'
+    
   const { data = {} } = useAppQuery({
     url: '/api/product/tablePrice',
     fetchInit: {

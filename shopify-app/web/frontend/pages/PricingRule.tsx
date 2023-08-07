@@ -25,10 +25,12 @@ import SpecificProduct from '../components/AutoComplete/SpecificProduct'
 import ProductResourcePicker from '../components/Modals/ProductResourcePicker'
 import CollectionResourcePicker from '../components/Modals/CollectionResourcePicker'
 import { RootState, IErrorForm } from '../types'
-import { useAppQuery } from '../hooks'
+import { useAppQuery, useAuthenticatedFetch } from '../hooks'
 import TablePrice from '../components/TablePrice'
 
 const PricingRulePage = () => {
+  const fetch = useAuthenticatedFetch()
+
   const [error, setError] = useState<IErrorForm>({
     storeName: '',
     priority: '',
@@ -42,7 +44,7 @@ const PricingRulePage = () => {
 
   const [storeName, setStoreName] = useState('')
 
-  // const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleStoreName = useCallback((newValue) => {
     setStoreName(newValue)
@@ -186,40 +188,15 @@ const PricingRulePage = () => {
     }
   }
 
-  const [query, setQuery] = useState('')
+  const [rows, setRows] = useState([])
 
-  // const { data = {} } = useAppQuery({
-  //   url: '/api/product/tablePrice',
-  //   fetchInit: {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ query: query }),
-  //   },
-  //   reactQueryOptions: {
-  //     // disable this query from automatically running.
-  //     enabled: query ? true : false,
-  //     onSuccess: () => {
-  //       setIsLoading(false)
-  //     },
-  //     onError: () => {
-  //       console.log('Error: ')
-  //     },
-  //     queryFn: async () => {
-  //       console.log('QueryFn')
-  //       return 'sga'
-  //     },
-  //   },
-  // })
-
-  const handleTable = () => {
+  const handleTable = async () => {
     let query = ''
     let subQuery = ''
 
     switch (selectedProduct[0]) {
       case '1':
-        query = `{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }`
+        query = `{ products (first: 25) { edges { node { title variants(first: 5) { edges { node { price } } } } } } }`
         break
       case '2':
         subQuery = specificsProducts
@@ -233,8 +210,14 @@ const PricingRulePage = () => {
             products (first: 25, query:"${subQuery}") {
               edges {
                 node {
-                  id
                   title
+                  variants(first: 5) { 
+                    edges { 
+                      node { 
+                        price 
+                      } 
+                    } 
+                  }
                 }
               }
             }
@@ -249,13 +232,20 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-            collections (first:25, query:"${subQuery}") {
+            collections (first:5, query:"${subQuery}") {
               edges {
                 node {
-                  products(first:25) {
+                  products(first:20) {
                     edges {
                       node {
                         title
+                        variants(first: 5) { 
+                          edges { 
+                            node { 
+                              price 
+                            } 
+                          } 
+                        }
                       }
                     }
                   }
@@ -264,11 +254,62 @@ const PricingRulePage = () => {
             }
           }`
         break
+      case '4':
+        subQuery = tagProduct
+          .map((tag) => {
+            return `tag:'${tag}'`
+          })
+          .join(' OR ')
+
+        query = `{
+          products(first: 25, query:"${subQuery}") {
+            edges {
+              node {
+                title
+                tags
+                variants(first: 5) { 
+                  edges { 
+                    node { 
+                      price 
+                    } 
+                  } 
+                }
+              }
+            }
+          }
+        }`
+
+        break
       default:
         query = ''
     }
 
-    setQuery(query)
+    const res = await fetch('/api/product/tablePrice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: query, type: selectedPrice[0] }),
+    })
+
+    const { data = [] } = await res.json()
+
+    const rowsTemp = data.map((row) => {
+      let newPrice = null
+      if (selectedPrice[0] == '1') {
+        newPrice = amount
+      } else if (selectedPrice[0] == '2') {
+        newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
+      } else {
+        newPrice = (+row.price * (100 - amount)) / 100
+      }
+
+      return [row.title, row.price, newPrice]
+    })
+
+    console.log('rowsTemp: ', rowsTemp)
+    setRows(rowsTemp)
+
     console.log('End')
   }
 
@@ -401,7 +442,12 @@ const PricingRulePage = () => {
           </LegacyCard>
         </Layout.Section>
 
-        <TablePrice query={query} />
+        <TablePrice
+          // query={query}
+          // typePrice={selectedPrice[0]}
+          // amount={amount}
+          rows={rows}
+        />
         {/* <Layout.Section secondary>
           <DataTable
             columnContentTypes={['text', 'text']}
