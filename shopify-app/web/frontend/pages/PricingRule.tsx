@@ -215,6 +215,42 @@ const PricingRulePage = () => {
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
 
       console.log('Prev handle table ...')
+
+      let dataTemp = []
+      switch (selectedProduct[0]) {
+        case '1':
+          dataTemp = { type: '1' }
+          break
+        case '2':
+          dataTemp = { type: '2', data: [...specificsProducts] }
+          break
+        case '3':
+          dataTemp = { type: '3', data: [...collectionProduct] }
+          break
+        case '4':
+          dataTemp = { type: '4', data: [...tagProduct] }
+        default:
+          dataTemp = []
+      }
+
+      localStorage.setItem('products', JSON.stringify(dataTemp))
+
+      switch (selectedPrice[0]) {
+        case '1':
+          dataTemp = { type: '1', amount: amount }
+          break
+        case '2':
+          dataTemp = { type: '2', amount: amount }
+          break
+        case '3':
+          dataTemp = { type: '3', amount: amount }
+          break
+        default:
+          dataTemp = {}
+      }
+
+      localStorage.setItem('price', JSON.stringify(dataTemp))
+      localStorage.setItem('storeName', JSON.stringify(storeName))
       handleTable()
     }
   }
