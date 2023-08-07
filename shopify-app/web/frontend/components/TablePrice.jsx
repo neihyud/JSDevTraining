@@ -13,7 +13,7 @@ const rows = [
   ['% 5 Panel Camp cap', 'all variant prices - 20%'],
 ]
 
-const TablePrice = ({ query, setQuery }) => {
+const TablePrice = ({ query  }) => {
   const [isLoading, setIsLoading] = useState(true)
 
   console.log('Query Table: ', query)
@@ -29,13 +29,13 @@ const TablePrice = ({ query, setQuery }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query: query }),
+      body: JSON.stringify({ query: query  }),
     },
     reactQueryOptions: {
       // disable this query from automatically running.
       //   enabled: query ? true : false,
-      enabled: query ? true : false,
-      //   refetchOnReconnect: 'always',
+      enabled: true,
+        refetchOnReconnect: 'always',
       queryKey: [query],
       onSuccess: () => {
         setIsLoading(false)

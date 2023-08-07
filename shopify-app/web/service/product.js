@@ -30,24 +30,26 @@ export async function getProductTags(session) {
 
 export const getDataTable = async (session, query) => {
   const client = new shopify.api.clients.Graphql({ session })
+  console.log('Query Validator: ', typeof query)
   try {
-    const {
-      body: {},
-    } = await client.query({
+    const { body = {} } = await client.query({
       data: {
         query: query,
       },
     })
 
-    const edges = body.data.shop
-    return edges
+    console.log('Body: ', body.data)
+
+    // const edges = body.data.shop
+    return body
   } catch (error) {
-    if (error instanceof GraphqlQueryError) {
-      throw new Error(
-        `${error.message}\n${JSON.stringify(error.response, null, 2)}`
-      )
-    } else {
-      throw error
-    }
+    console.log('ERROR: ', error)
+    // if (error instanceof GraphqlQueryError) {
+    //   throw new Error(
+    //     `${error.message}\n${JSON.stringify(error.response, null, 2)}`
+    //   )
+    // } else {
+    //   throw error
+    // }
   }
 }

@@ -26,24 +26,6 @@ export function ProductsCard() {
     },
   })
 
-  // const query =
-  //   '{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }'
-  // const { data = {} } = useAppQuery({
-  //   url: '/api/product/tablePrice',
-  //   // method: 'POST',
-  //   // body: JSON.stringify(query),
-  //   fetchInit: { query },
-  //   reactQueryOptions: {
-  //     onSuccess: () => {
-  //       console.log('DATA TABLE: ', data)
-  //       setIsLoading(false)
-  //     },
-  //     onError: (error) => {
-  //       console.log(error)
-  //     },
-  //   },
-  // })
-
   const toastMarkup = toastProps.content && !isRefetchingCount && (
     <Toast {...toastProps} onDismiss={() => setToastProps(emptyToastProps)} />
   )

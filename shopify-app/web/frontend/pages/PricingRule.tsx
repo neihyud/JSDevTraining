@@ -268,36 +268,9 @@ const PricingRulePage = () => {
         query = ''
     }
 
-    console.log('Query: ', query)
-
-    // const { data = {} } = useAppQuery({
-    //   url: '/api/product/tablePrice',
-    //   fetchInit: {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ query: query }),
-    //   },
-    //   reactQueryOptions: {
-    //     onSuccess: () => {
-    //       setIsLoading(false)
-    //       console.log('DATA TABLE: ', data)
-    //     },
-    //     onError: (error) => {
-    //       console.log('Error: ', error)
-    //     },
-    //   },
-    // })
-    setQuery(() => query)
+    setQuery(query)
     console.log('End')
   }
-
-  // if (!isLoading) {
-  //   console.log('Get Data Table success !')
-  //   console.log('DATA TABLE MAIN: ', data)
-  //   // setQuery(() => 's')
-  // }
 
   let additionalFieldProduct = <></>
 
@@ -428,7 +401,7 @@ const PricingRulePage = () => {
           </LegacyCard>
         </Layout.Section>
 
-        <TablePrice query={query} setQuery={setQuery} />
+        <TablePrice query={query} />
         {/* <Layout.Section secondary>
           <DataTable
             columnContentTypes={['text', 'text']}

@@ -8,7 +8,7 @@ import shopify from './shopify.js'
 import productCreator from './product-creator.js'
 import GDPRWebhookHandlers from './gdpr.js'
 
-import { getProductTags } from './service/product.js'
+import { getProductTags, getDataTable } from './service/product.js'
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || '3000',
@@ -90,24 +90,22 @@ app.post('/api/product/tablePrice', async (_req, res) => {
   let error = null
 
   console.log('Post request')
-  const data = _req.body
-  console.log('DATA POST: ', data)
+  const { query } = _req.body
   try {
-    // const data = await getDataTable(res.locals.shopify.session, query)
-  } catch (error) {}
+    const data = await getDataTable(res.locals.shopify.session, query)
+    console.log('DATA POST: ', data)
 
-  return res.status(400).json({ data })
-})
+    return res.status(400).json({ data })
+  } catch (error) {
+    console.log(`Failed to process get product tag: ${e.message}`)
+    status = 500
+    error = e.message
+    return res
+      .status(status)
+      .send({ success: status === 200, error, message: 'Error' })
+  }
 
-app.get('/api/product/tablePrice', async (_req, res) => {
-  let status = 200
-  let error = null
-
-  console.log('Get request')
-  console.log('_Req =====================', _req)
-  console.log('_Res =====================', res)
-
-  return res.status(200).send({ success: false })
+  // return res.status(400).json({ data })
 })
 
 app.use(shopify.cspHeaders())
