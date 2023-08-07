@@ -155,7 +155,7 @@ const PricingRulePage = () => {
       err.storeName = 'Name is required!'
     }
 
-    if (0 < parseInt(priority) && parseInt(priority) > 99) {
+    if (0 < parseInt(priority) || parseInt(priority) > 99) {
       err.priority = 'Priority must have a value between 0 and 99'
     }
 
@@ -167,23 +167,32 @@ const PricingRulePage = () => {
       err[`empField${selectedProduct[0]}`] = 'Field must be added'
     }
 
+    console.log('SelectedPrice[0]: ', selectedPrice[0])
+
     if (
       (selectedPrice[0] == '3' && parseFloat(amount) < 1) ||
       parseFloat(amount) > 100
     ) {
       err.amount3 = 'Discount value must be between 1 and 100'
-    } else if (
-      (selectedPrice[0] == '2' && parseFloat(amount) < 1) ||
-      parseFloat(amount) > 100
-    ) {
+    } else if (selectedPrice[0] == '2' && parseFloat(amount) < 1) {
       err.amount2 = 'Discount value must be greater than 1'
     }
 
-    if (Object.keys(err).length > 0) {
+    console.log('Err: ', err)
+    if (
+      err.priority ||
+      err.storeName ||
+      err[`amount${selectedPrice[0]}`] ||
+      err[`empField${selectedProduct[0]}`]
+    ) {
       setError(err)
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     } else {
       console.log('No error')
+      setIsLoading(true)
+      setRows([])
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+
       handleTable()
     }
   }
@@ -289,19 +298,22 @@ const PricingRulePage = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query: query, type: selectedPrice[0] }),
+      body: JSON.stringify({ query: query, type: selectedProduct[0] }),
     })
+    setIsLoading(false)
 
     const { data = [] } = await res.json()
 
-    const rowsTemp = data.map((row) => {
+    console.log('DATA: ', data)
+    const rowsTemp = data.map((row, index) => {
+      console.log(`Row${index}: `, row)
       let newPrice = null
       if (selectedPrice[0] == '1') {
         newPrice = amount
       } else if (selectedPrice[0] == '2') {
         newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
-      } else {
-        newPrice = (+row.price * (100 - amount)) / 100
+      } else if (selectedPrice[0] == '3') {
+        newPrice = (+row.price * (100 - +amount)) / 100
       }
 
       return [row.title, row.price, newPrice]
@@ -344,6 +356,7 @@ const PricingRulePage = () => {
     <Page
       title="New Pricing Rule"
       backAction={{ content: 'Products', url: '#' }}
+      fullWidth="true"
     >
       <Layout>
         <Layout.Section>
@@ -447,14 +460,8 @@ const PricingRulePage = () => {
           // typePrice={selectedPrice[0]}
           // amount={amount}
           rows={rows}
+          isLoading={isLoading}
         />
-        {/* <Layout.Section secondary>
-          <DataTable
-            columnContentTypes={['text', 'text']}
-            headings={['Title', 'Modified Price']}
-            rows={rows}
-          />
-        </Layout.Section> */}
       </Layout>
 
       <ProductResourcePicker
