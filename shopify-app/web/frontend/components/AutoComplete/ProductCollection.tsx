@@ -43,7 +43,7 @@ const ProductCollection = ({ error }) => {
   const selectedOptionsStore = useSelector(
     (state: RootState) => state.products.productCollection,
     () => true
-  )
+  ) 
 
   const [isMount, setIsMount] = useState(false)
   if (!isMount) {

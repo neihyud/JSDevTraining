@@ -12,6 +12,7 @@ import {
   ResourceItem,
   Text,
   Thumbnail,
+  Spinner,
 } from '@shopify/polaris'
 import { SearchMajor } from '@shopify/polaris-icons'
 import type { ResourceListProps } from '@shopify/polaris'
@@ -24,6 +25,14 @@ import { useAuthenticatedFetch } from '../../hooks'
 const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [pageInfo, setPageInfo] = useState({
+    endCursor: '',
+    hasNextPage: false,
+  })
+
+  const [productsSearch, setProductsSearch] = useState([])
 
   const [selectedItems, setSelectedItems] = useState<
     ResourceListProps['selectedItems']
@@ -43,34 +52,59 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   }
 
   const [textFieldValue, setTextFieldValue] = useState('')
-
-  const handleTextFieldChange = useCallback((value) => {
+  const handleTextFieldChange = async (value) => {
     setTextFieldValue(value)
-  }, [])
+
+    if (value) {
+      console.log('Search True')
+      console.log('Value: ', value)
+      setIsLoading(true)
+      const res = await fetch(`/api/products?q=${value}`)
+
+      const { data = {} } = await res.json()
+      console.log('Search Data: ', data.products)
+      setProductsSearch([...productsSearch, ...data.products])
+    }
+  }
 
   const specificProduct = useSelector(
     (state: RootState) => state.products.specificProducts
   )
+
   useEffect(async () => {
     const res = await fetch('/api/products')
 
-    const { data = [] } = await res.json()
+    const { data = {} } = await res.json()
 
-    // console.log('UE between: ', res)
-    // const data = await res.json()
+    console.log('Use Effect [] ...', data.pageInfo)
 
-    // console.log('UE: ', data)
-
-    dispatch({ type: 'GET_PRODUCTS', payload: [...data] })
+    dispatch({ type: 'GET_PRODUCTS', payload: [...data.products] })
+    setPageInfo(() => ({ ...data.pageInfo }))
   }, [])
 
   useEffect(() => {
     setSelectedItems(specificProduct)
   }, [specificProduct, isOpen])
 
+  const handleScrollBottom = async () => {
+    // loading: false thi ms xu ly
+    if (!isLoading && pageInfo.hasNextPage) {
+      console.log('TRUE SCROLL BOTTOM')
+
+      setIsLoading(true)
+      const res = await fetch(
+        `/api/products?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
+      )
+      const { data = {} } = await res.json()
+
+      setPageInfo({ ...pageInfo, ...data.pageInfo })
+      dispatch({ type: 'GET_PRODUCTS', payload: data.products })
+      setIsLoading(false)
+    }
+  }
+
   return (
     <>
-      {/* <div style={{ height: '500px' }}> */}
       <Modal
         open={isOpen}
         onClose={closeModal}
@@ -79,6 +113,8 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
           content: 'Save',
           onAction: saveModal,
         }}
+        onScrolledToBottom={handleScrollBottom}
+        loading={isLoading}
       >
         <Modal.Section>
           <LegacyStack vertical>
@@ -95,9 +131,10 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
                 <div>
                   <Scrollable>
                     <ResourceListProduct
-                      selectedItems={selectedItems}
-                      setSelectedItems={setSelectedItems}
+                      // selectedItems={selectedItems}
+                      // setSelectedItems={setSelectedItems}
                       valueSearch={textFieldValue}
+                      // productsSearch={productsSearch}
                     ></ResourceListProduct>
                   </Scrollable>
                 </div>
@@ -105,27 +142,37 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
             </Box>
           </LegacyStack>
         </Modal.Section>
+        {isLoading && (
+          <div
+            style={{
+              width: '100%',
+              margin: '10px 0',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Spinner size="large" />
+          </div>
+        )}
       </Modal>
-      {/* </div> */}
     </>
   )
 }
 
 const ResourceListProduct = ({
-  selectedItems,
-  setSelectedItems,
+  // selectedItems,
+  // setSelectedItems,
   valueSearch,
+  // productsSearch,
 }) => {
   const resourceName = {
     singular: 'product',
     plural: 'products',
   }
 
-  const items = useSelector((state) => state.products.allProducts).filter(
-    (product) => {
-      return product.title.toLowerCase().includes(valueSearch.toLowerCase())
-    }
-  )
+  const items = valueSearch
+    ? productsSearch
+    : useSelector((state) => state.products.allProducts)
 
   return (
     <LegacyCard>

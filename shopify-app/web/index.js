@@ -115,8 +115,17 @@ app.get('/api/products', async (req, res) => {
   let status = 200
   let error = null
 
+  const { endCursor = '', hasNextPage = false, q = ''} = req.query
+
+  console.log('EndCursor - HasNextPage - Q: ', endCursor, hasNextPage, q)
+  
   try {
-    const data = await getProducts(res.locals.shopify.session)
+    const data = await getProducts(
+      res.locals.shopify.session,
+      endCursor,
+      hasNextPage,
+      q
+    )
 
     return res.status(200).json({ data })
   } catch (error) {
@@ -137,7 +146,7 @@ app.get('/api/collections', async (req, res) => {
   try {
     const data = await getCollections(res.locals.shopify.session)
 
-    console.log("GET COLLECTIONS")
+    console.log('GET COLLECTIONS')
     return res.status(200).json({ data })
   } catch (error) {
     console.log('Error: ', error)

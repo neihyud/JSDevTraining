@@ -26,7 +26,7 @@ const TablePrice = ({ rows, isLoading }) => {
             <Spinner size="large" />
           </div>
         )}
-      </Layout.Section>
+      </Layout.Section> 
     </div>
   )
 }

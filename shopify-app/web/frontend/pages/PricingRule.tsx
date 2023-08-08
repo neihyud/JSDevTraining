@@ -422,6 +422,7 @@ const PricingRulePage = () => {
                 name="storeName"
                 onChange={handleStoreName}
                 error={error.storeName ? error.storeName : ''}
+                requiredIndicator
               />
               <TextField
                 label="Priority"
@@ -502,6 +503,7 @@ const PricingRulePage = () => {
                 onChange={handleAmount}
                 type="number"
                 error={error[`amount${selectedPrice[0]}`]}
+                min={'0'}
                 // onBlur={handleBlurAmount}
               />
             </FormLayout>
@@ -510,18 +512,9 @@ const PricingRulePage = () => {
 
         <TablePrice rows={rows} isLoading={isLoading} />
       </Layout>
-
-      {/* <ProductResourcePicker
-        openModal={openTypeModal}
-        setOpenTypeModal={setOpenTypeModal}
-      />
-
-      <CollectionResourcePicker
-        openModal={openTypeModal}
-        setOpenTypeModal={setOpenTypeModal}
-      /> */}
-
+      
       <ModalSpecificProduct openModal={setIsOpenModal} isOpen={isOpenModal} />
+      <div style={{ padding: '40px' }}></div>
 
       <PageActions
         primaryAction={{

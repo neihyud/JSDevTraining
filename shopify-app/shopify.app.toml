@@ -2,7 +2,7 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://column-earliest-picking-toll.trycloudflare.com"
+application_url = "https://method-andrews-actor-biggest.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://column-earliest-picking-toll.trycloudflare.com/auth/callback",
-  "https://column-earliest-picking-toll.trycloudflare.com/auth/shopify/callback",
-  "https://column-earliest-picking-toll.trycloudflare.com/api/auth/callback"
+  "https://method-andrews-actor-biggest.trycloudflare.com/auth/callback",
+  "https://method-andrews-actor-biggest.trycloudflare.com/auth/shopify/callback",
+  "https://method-andrews-actor-biggest.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

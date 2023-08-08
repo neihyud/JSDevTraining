@@ -2,88 +2,8 @@ const initState = {
   specificProducts: [],
   productCollection: [],
   productTags: [],
-  allProducts: [
-    {
-      id: '101',
-      url: '#',
-      name: 'A',
-      location: 'Decatur, USA',
-    },
-    {
-      id: '201',
-      url: '#',
-      name: 'B',
-      location: 'Los Angeles, USA',
-    },
-    {
-      id: '102',
-      url: '#',
-      name: 'C',
-      location: 'Decatur, USA',
-      tag: 'w',
-    },
-    {
-      id: '202',
-      url: '#',
-      name: 'F',
-      location: 'Los Angeles, USA',
-    },
-    {
-      id: '103',
-      url: '#',
-      name: 'D',
-      location: 'Decatur, USA',
-    },
-    {
-      id: '204',
-      url: '#',
-      name: 'E',
-      location: 'Los Angeles, USA',
-    },
-  ],
-  allCollection: [
-    {
-      id: '101',
-      name: 'Collection A',
-    },
-
-    {
-      id: '102',
-      name: 'Collection B',
-    },
-    {
-      id: '103',
-      name: 'Collection C',
-    },
-    {
-      id: '104',
-      name: 'Collection D',
-    },
-    {
-      id: '105',
-      name: 'Collection E',
-    },
-    {
-      id: '106',
-      name: 'Collection F',
-    },
-    {
-      id: '107',
-      name: 'Collection G',
-    },
-    {
-      id: '108',
-      name: 'Collection H',
-    },
-    {
-      id: '109',
-      name: 'Collection K',
-    },
-    {
-      id: '110',
-      name: 'Collection L',
-    },
-  ],
+  allProducts: [],
+  allCollection: [],
   allTags: [],
 }
 
@@ -129,9 +49,10 @@ const productReducer = (state = initState, action) => {
       }
       break
     case 'GET_PRODUCTS':
+      console.log('Action Payload: ', action.payload)
       return {
         ...state,
-        allProducts: [...action.payload],
+        allProducts: [...state.allProducts, ...action.payload],
       }
     case 'GET_COLLECTIONS':
       return {

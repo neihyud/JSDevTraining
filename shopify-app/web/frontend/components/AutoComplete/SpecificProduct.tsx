@@ -72,7 +72,7 @@ const SpecificProductsCard = ({ onRemove, selectedOptions }) => {
               media={media}
               accessibilityLabel={`View details for ${title}`}
             >
-              <div style={{ padding: '0px 0' }}>
+              <div style={{ padding: '20px 0' }}>
                 <Text variant="bodyMd" fontWeight="bold" as="h3">
                   {title}
                 </Text>
