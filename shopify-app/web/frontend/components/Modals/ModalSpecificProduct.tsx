@@ -32,6 +32,11 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     hasNextPage: false,
   })
 
+  const [pageInfoSearch, setPageInfoSearch] = useState({
+    endCursor: '',
+    hasNextPage: false,
+  })
+
   const [productsSearch, setProductsSearch] = useState([])
 
   const [selectedItems, setSelectedItems] = useState<
@@ -58,12 +63,32 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     if (value) {
       console.log('Search True')
       console.log('Value: ', value)
-      setIsLoading(true)
-      const res = await fetch(`/api/products?q=${value}`)
 
-      const { data = {} } = await res.json()
-      console.log('Search Data: ', data.products)
-      setProductsSearch([...productsSearch, ...data.products])
+      setPageInfoSearch([])
+      setIsLoading(true)
+
+      console.log('Products Search: ', productsSearch)
+      console.log(
+        'Query: ',
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${value}`
+      )
+
+      fetch(
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${value}`
+      )
+        .then((res) => res.json())
+        .then(({ data }) => {
+          console.log('data: ', data)
+          console.log('Data: ', data.products)
+          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
+          setProductsSearch(() => [...data.products])
+        })
+        .catch((error) => {
+          alert(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
     }
   }
 
@@ -72,34 +97,75 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   )
 
   useEffect(async () => {
-    const res = await fetch('/api/products')
+    if (!isLoading) {
+      const res = await fetch('/api/products')
 
-    const { data = {} } = await res.json()
+      const { data = {} } = await res.json()
 
-    console.log('Use Effect [] ...', data.pageInfo)
-
-    dispatch({ type: 'GET_PRODUCTS', payload: [...data.products] })
-    setPageInfo(() => ({ ...data.pageInfo }))
+      dispatch({ type: 'GET_PRODUCTS', payload: [...data.products] })
+      setPageInfo(() => ({ ...data.pageInfo }))
+    }
   }, [])
 
   useEffect(() => {
     setSelectedItems(specificProduct)
   }, [specificProduct, isOpen])
 
-  const handleScrollBottom = async () => {
+  const handleScrollBottom = () => {
     // loading: false thi ms xu ly
-    if (!isLoading && pageInfo.hasNextPage) {
+    if (!isLoading && pageInfo.hasNextPage && !textFieldValue) {
       console.log('TRUE SCROLL BOTTOM')
 
       setIsLoading(true)
-      const res = await fetch(
+
+      fetch(
         `/api/products?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
       )
-      const { data = {} } = await res.json()
+        .then((res) => res.json())
+        .then(({ data }) => {
+          setPageInfo({ ...pageInfo, ...data.pageInfo })
+          dispatch({ type: 'GET_PRODUCTS', payload: data.products })
+        })
+        .catch((error) => {
+          // handle Error
+          alert(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    }
 
-      setPageInfo({ ...pageInfo, ...data.pageInfo })
-      dispatch({ type: 'GET_PRODUCTS', payload: data.products })
-      setIsLoading(false)
+    if (!isLoading && pageInfoSearch.hasNextPage && textFieldValue) {
+      setIsLoading(true)
+      console.log('TRUE SCROLL BOTTOM SEARCH')
+
+      console.log(
+        'Query: ',
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${textFieldValue}`
+      )
+
+      fetch(
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${textFieldValue}`
+      )
+        .then((res) => {
+          res.json()
+        })
+        .then((info) => {
+          const { data = {} } = info
+          console.log('Scroll Data:  ', info)
+          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
+          setProductsSearch([...productsSearch, ...data.products])
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+
+      // const { data = {} } = await res.json()
+
+      // setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
+      // setProductsSearch([...productsSearch, ...data.products])
+
+      // setIsLoading(false)
     }
   }
 
@@ -114,7 +180,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
           onAction: saveModal,
         }}
         onScrolledToBottom={handleScrollBottom}
-        loading={isLoading}
       >
         <Modal.Section>
           <LegacyStack vertical>
@@ -131,10 +196,10 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
                 <div>
                   <Scrollable>
                     <ResourceListProduct
-                      // selectedItems={selectedItems}
-                      // setSelectedItems={setSelectedItems}
+                      selectedItems={selectedItems}
+                      setSelectedItems={setSelectedItems}
                       valueSearch={textFieldValue}
-                      // productsSearch={productsSearch}
+                      productsSearch={productsSearch}
                     ></ResourceListProduct>
                   </Scrollable>
                 </div>
@@ -160,10 +225,10 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 }
 
 const ResourceListProduct = ({
-  // selectedItems,
-  // setSelectedItems,
+  selectedItems,
+  setSelectedItems,
   valueSearch,
-  // productsSearch,
+  productsSearch,
 }) => {
   const resourceName = {
     singular: 'product',

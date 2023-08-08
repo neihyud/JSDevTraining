@@ -89,9 +89,11 @@ export const getDataTable = async (session, query, type) => {
 export const getProducts = async (session, endCursor, hasNextPage, q) => {
   const client = new shopify.api.clients.Graphql({ session })
 
+  console.log("Type: ", typeof hasNextPage)
+
   const query = `{
-    products (first: ${PAGE_SIZE} ${q ? ` , query:"${q}"` : ''} ${
-    hasNextPage ? `, after:"${endCursor}"` : ''
+    products (first: ${PAGE_SIZE} ${q ? `, query:"title:${q}*"` : ''} ${
+    hasNextPage == "true" ? `, after:"${endCursor}"` : ''
   }) {
       edges {
         node {
@@ -113,6 +115,8 @@ export const getProducts = async (session, endCursor, hasNextPage, q) => {
     }
   }`
 
+  console.log('Query: ', query)
+
   try {
     const { body = {} } = await client.query({
       data: {
@@ -133,6 +137,7 @@ export const getProducts = async (session, endCursor, hasNextPage, q) => {
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
+    console.log("PRoducts: ", products)
     return {
       products,
       pageInfo: body.data.products.pageInfo,
