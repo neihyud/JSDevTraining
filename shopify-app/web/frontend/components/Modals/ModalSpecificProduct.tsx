@@ -21,12 +21,13 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../../types'
 import { useAuthenticatedFetch } from '../../hooks'
+import useDebounce from '../../hooks/useDebounce'
 
 const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
   const [isLoading, setIsLoading] = useState(false)
-
+  const [isHasData, setIsHasData] = useState(false)
   const [pageInfo, setPageInfo] = useState({
     endCursor: '',
     hasNextPage: false,
@@ -43,6 +44,10 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     ResourceListProps['selectedItems']
   >([])
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const debouncedValue = useDebounce(searchTerm, 500)
+
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
     dispatch({
@@ -56,30 +61,33 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     setSelectedItems([])
   }
 
-  const [textFieldValue, setTextFieldValue] = useState('')
-  const handleTextFieldChange = async (value) => {
-    setTextFieldValue(value)
+  const handleTextFieldChange = (value) => {
+    setSearchTerm(value)
+  }
 
-    if (value) {
+  const specificProduct = useSelector(
+    (state: RootState) => state.products.specificProducts
+  )
+
+  useEffect(() => {
+    setIsLoading(true)
+    setProductsSearch([])
+    setPageInfoSearch({ endCursor: '', hasNextPage: false })
+
+    if (debouncedValue.trim()) {
       console.log('Search True')
-      console.log('Value: ', value)
-
-      setPageInfoSearch([])
-      setIsLoading(true)
 
       console.log('Products Search: ', productsSearch)
       console.log(
         'Query: ',
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${value}`
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
       )
 
       fetch(
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${value}`
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
       )
         .then((res) => res.json())
         .then(({ data }) => {
-          console.log('data: ', data)
-          console.log('Data: ', data.products)
           setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
           setProductsSearch(() => [...data.products])
         })
@@ -89,12 +97,12 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
         .finally(() => {
           setIsLoading(false)
         })
+    } else {
+      // setPageInfoSearch({ endCursor: '', hasNextPage: false })
+      // setProductsSearch([])
+      setIsLoading(false)
     }
-  }
-
-  const specificProduct = useSelector(
-    (state: RootState) => state.products.specificProducts
-  )
+  }, [debouncedValue])
 
   useEffect(async () => {
     if (!isLoading) {
@@ -113,7 +121,7 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const handleScrollBottom = () => {
     // loading: false thi ms xu ly
-    if (!isLoading && pageInfo.hasNextPage && !textFieldValue) {
+    if (!isLoading && pageInfo.hasNextPage && !searchTerm) {
       console.log('TRUE SCROLL BOTTOM')
 
       setIsLoading(true)
@@ -135,21 +143,19 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
         })
     }
 
-    if (!isLoading && pageInfoSearch.hasNextPage && textFieldValue) {
+    if (!isLoading && pageInfoSearch.hasNextPage && searchTerm) {
       setIsLoading(true)
       console.log('TRUE SCROLL BOTTOM SEARCH')
 
       console.log(
         'Query: ',
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${textFieldValue}`
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
       )
 
       fetch(
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${textFieldValue}`
+        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
       )
-        .then((res) => {
-          res.json()
-        })
+        .then((res) => res.json())
         .then((info) => {
           const { data = {} } = info
           console.log('Scroll Data:  ', info)
@@ -157,15 +163,9 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
           setProductsSearch([...productsSearch, ...data.products])
         })
         .finally(() => {
+          console.log('Finally ...')
           setIsLoading(false)
         })
-
-      // const { data = {} } = await res.json()
-
-      // setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
-      // setProductsSearch([...productsSearch, ...data.products])
-
-      // setIsLoading(false)
     }
   }
 
@@ -187,7 +187,7 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
               <div>
                 <TextField
                   label=""
-                  value={textFieldValue}
+                  value={searchTerm}
                   onChange={handleTextFieldChange}
                   prefix={<Icon source={SearchMajor} color="base" />}
                   autoComplete="off"
@@ -198,8 +198,9 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
                     <ResourceListProduct
                       selectedItems={selectedItems}
                       setSelectedItems={setSelectedItems}
-                      valueSearch={textFieldValue}
+                      valueSearch={searchTerm}
                       productsSearch={productsSearch}
+                      isLoading={isLoading}
                     ></ResourceListProduct>
                   </Scrollable>
                 </div>
@@ -229,6 +230,7 @@ const ResourceListProduct = ({
   setSelectedItems,
   valueSearch,
   productsSearch,
+  isLoading,
 }) => {
   const resourceName = {
     singular: 'product',
@@ -249,6 +251,11 @@ const ResourceListProduct = ({
         onSelectionChange={setSelectedItems}
         selectable
       />
+      {items.length == 0 && !isLoading ? (
+        <div style={{ marginTop: '10px' }}>No product</div>
+      ) : (
+        <></>
+      )}
     </LegacyCard>
   )
 
