@@ -57,7 +57,7 @@ const productReducer = (state = initState, action) => {
     case 'GET_COLLECTIONS':
       return {
         ...state,
-        allCollection: [...action.payload],
+        allCollection: [...state.allCollection, ...action.payload],
       }
     default:
       return state

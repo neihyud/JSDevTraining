@@ -2,33 +2,6 @@ import { GraphqlQueryError } from '@shopify/shopify-api'
 import shopify from '../shopify.js'
 import { PAGE_SIZE } from '../frontend/constant/constant.js'
 
-export async function getProductTags(session) {
-  const client = new shopify.api.clients.Graphql({ session })
-
-  const query = `{ shop { productTags(first: ${PAGE_SIZE}) { edges { node } } } }`
-  try {
-    const { body = {} } = await client.query({
-      data: {
-        query: query,
-      },
-    })
-
-    const edges = body.data.shop.productTags.edges
-
-    return edges.map((edge) => ({
-      name: edge.node,
-    }))
-  } catch (error) {
-    if (error instanceof GraphqlQueryError) {
-      throw new Error(
-        `${error.message}\n${JSON.stringify(error.response, null, 2)}`
-      )
-    } else {
-      throw error
-    }
-  }
-}
-
 export const getDataTable = async (session, query, type) => {
   const client = new shopify.api.clients.Graphql({ session })
   try {
@@ -86,14 +59,41 @@ export const getDataTable = async (session, query, type) => {
   }
 }
 
+export async function getProductTags(session) {
+  const client = new shopify.api.clients.Graphql({ session })
+
+  const query = `{ shop { productTags(first: ${PAGE_SIZE}) { edges { node } } } }`
+  try {
+    const { body = {} } = await client.query({
+      data: {
+        query: query,
+      },
+    })
+
+    const edges = body.data.shop.productTags.edges
+
+    return edges.map((edge) => ({
+      name: edge.node,
+    }))
+  } catch (error) {
+    if (error instanceof GraphqlQueryError) {
+      throw new Error(
+        `${error.message}\n${JSON.stringify(error.response, null, 2)}`
+      )
+    } else {
+      throw error
+    }
+  }
+}
+
 export const getProducts = async (session, endCursor, hasNextPage, q) => {
   const client = new shopify.api.clients.Graphql({ session })
 
-  console.log("Type: ", typeof hasNextPage)
+  console.log('Type: ', typeof hasNextPage)
 
   const query = `{
     products (first: ${PAGE_SIZE} ${q ? `, query:"title:${q}*"` : ''} ${
-    hasNextPage == "true" ? `, after:"${endCursor}"` : ''
+    hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
   }) {
       edges {
         node {
@@ -137,7 +137,7 @@ export const getProducts = async (session, endCursor, hasNextPage, q) => {
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
-    console.log("PRoducts: ", products)
+    console.log('PRoducts: ', products)
     return {
       products,
       pageInfo: body.data.products.pageInfo,
@@ -153,10 +153,12 @@ export const getProducts = async (session, endCursor, hasNextPage, q) => {
   }
 }
 
-export const getCollections = async (session) => {
+export const getCollections = async (session, endCursor, hasNextPage, q) => {
   const client = new shopify.api.clients.Graphql({ session })
   const query = `{
-                    collections (first: 25) {
+                    collections (first: ${PAGE_SIZE} ${
+    q ? `, query:"title:${q}*"` : ''
+  } ${hasNextPage == 'true' ? `, after:"${endCursor}"` : ''}) {
                       edges {
                         node {
                           title
@@ -165,6 +167,10 @@ export const getCollections = async (session) => {
                             url
                           }
                         }
+                      }
+                      pageInfo {
+                        hasNextPage
+                        endCursor
                       }
                     }
                   }`
@@ -183,7 +189,10 @@ export const getCollections = async (session) => {
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
-    return collections
+    return {
+      collections,
+      pageInfo: body.data.products.pageInfo,
+    }
   } catch (error) {
     if (error instanceof GraphqlQueryError) {
       throw new Error(

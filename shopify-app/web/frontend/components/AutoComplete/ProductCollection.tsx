@@ -5,51 +5,66 @@ import React, { useState, useCallback, useEffect } from 'react'
 import type { RootState } from '../../types/index'
 import { useDispatch, useSelector } from 'react-redux'
 import ResourceListProduct from '../Common/ResourceListProduct'
-import { useAuthenticatedFetch } from '../../hooks'
+import { useAuthenticatedFetch, useDebounce } from '../../hooks'
 
 const ProductCollection = ({ error }) => {
   const fetch = useAuthenticatedFetch()
-  const paginationInterval = 25
   const dispatch = useDispatch()
 
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [pageInfo, setPageInfo] = useState({
+    endCursor: '',
+    hasNextPage: false,
+  })
 
-  const [deselectedOptions, setDeselectedOptions] = useState([])
+  const [pageInfoSearch, setPageInfoSearch] = useState({
+    endCursor: '',
+    hasNextPage: false,
+  })
 
-  useEffect(async () => {
-    const res = await fetch('/api/collections')
-    const { data = [] } = await res.json()
-
-    const deselectedOptions = data.map((_, index) => ({
-      value: `${_.id}`,
-      label: `${_.title}`,
-    }))
-
-    setDeselectedOptions(deselectedOptions)
-    setOptions(deselectedOptions)
-    setIsLoading(false)
-
-    dispatch({ type: 'GET_COLLECTIONS', payload: [...data] })
-  }, [])
+  const [collectionsSearch, setCollectionsSearch] = useState([])
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
-  const [inputValue, setInputValue] = useState('')
+
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const debounceValue = useDebounce(searchTerm, 500)
+
+  // const [deselectedOptions, setDeselectedOptions] = useState([])
+
   const [options, setOptions] = useState(deselectedOptions)
-  const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
-  const [visibleOptionIndex, setVisibleOptionIndex] =
-    useState(paginationInterval)
+
+  useEffect(async () => {
+    if (!isLoading) {
+      const res = await fetch('/api/collections')
+      const { data = {} } = await res.json()
+
+      // const deselectedOptions = data.map((_, index) => ({
+      //   value: `${_.id}`,
+      //   label: `${_.title}`,
+      // }))
+
+      // setDeselectedOptions(deselectedOptions)
+      // setOptions(deselectedOptions)
+
+      setIsLoading(false)
+
+      dispatch({ type: 'GET_COLLECTIONS', payload: [...data.collections] })
+    }
+  }, [])
+
+  // const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
+  // const [visibleOptionIndex, setVisibleOptionIndex] = useState(paginationInterval)
 
   // once call
-  const selectedOptionsStore = useSelector(
+  const selectedCollection = useSelector(
     (state: RootState) => state.products.productCollection,
     () => true
-  ) 
+  )
 
-  const [isMount, setIsMount] = useState(false)
-  if (!isMount) {
-    setSelectedOptions(selectedOptionsStore)
-    setIsMount(!isMount)
-  }
+  useEffect(() => {
+    setSelectedOptions(selectedCollection)
+  }, [selectedCollection])
 
   useEffect(() => {
     dispatch({
@@ -58,16 +73,13 @@ const ProductCollection = ({ error }) => {
     })
   }, [dispatch, selectedOptions])
 
-  const removeTag = useCallback(
-    (tag: string) => () => {
-      const options = [...selectedOptions]
-      options.splice(options.indexOf(tag), 1)
-      setSelectedOptions(options)
-    },
-    [selectedOptions]
-  )
-
-  const handleLoadMoreResults = useCallback(() => {
+  const removeTag = (tag: string) => () => {
+    const options = [...selectedOptions]
+    options.splice(options.indexOf(tag), 1)
+    setSelectedOptions(options)
+  }
+  
+  const handleLoadMoreResults = () => {
     if (willLoadMoreResults) {
       setIsLoading(true)
 
@@ -86,11 +98,11 @@ const ProductCollection = ({ error }) => {
         }
       }, 1000)
     }
-  }, [willLoadMoreResults, visibleOptionIndex, options.length])
+  }
 
   const updateText = useCallback(
     (value: string) => {
-      setInputValue(value)
+      setSearchTerm(value)
 
       if (value === '') {
         setOptions(deselectedOptions)
@@ -111,7 +123,7 @@ const ProductCollection = ({ error }) => {
     <Autocomplete.TextField
       onChange={updateText}
       label=""
-      value={inputValue}
+      value={searchTerm}
       placeholder="Vintage, cotton, summer"
       autoComplete="off"
     />

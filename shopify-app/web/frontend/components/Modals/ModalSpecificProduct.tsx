@@ -27,7 +27,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
   const [isLoading, setIsLoading] = useState(false)
-  const [isHasData, setIsHasData] = useState(false)
   const [pageInfo, setPageInfo] = useState({
     endCursor: '',
     hasNextPage: false,
@@ -75,13 +74,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     setPageInfoSearch({ endCursor: '', hasNextPage: false })
 
     if (debouncedValue.trim()) {
-      console.log('Search True')
-
-      console.log('Products Search: ', productsSearch)
-      console.log(
-        'Query: ',
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
-      )
 
       fetch(
         `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`

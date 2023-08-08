@@ -91,7 +91,6 @@ app.get('/api/shop/productTags', async (_req, res) => {
 
 app.post('/api/product/tablePrice', async (_req, res) => {
   let status = 200
-  let error = null
 
   const { query, type } = _req.body
   try {
@@ -108,17 +107,15 @@ app.post('/api/product/tablePrice', async (_req, res) => {
       .send({ success: status === 200, error, message: 'Error' })
   }
 
-  // return res.status(400).json({ data })
 })
 
 app.get('/api/products', async (req, res) => {
   let status = 200
-  let error = null
 
-  const { endCursor = '', hasNextPage = false, q = ''} = req.query
+  const { endCursor = '', hasNextPage = false, q = '' } = req.query
 
   console.log('EndCursor - HasNextPage - Q: ', endCursor, hasNextPage, q)
-  
+
   try {
     const data = await getProducts(
       res.locals.shopify.session,
@@ -131,22 +128,27 @@ app.get('/api/products', async (req, res) => {
   } catch (error) {
     console.log('Error: ', error)
     // console.log(`Failed to process get product tag: ${e.message}`)
-    status = 500
     // error = e.message
     return res
-      .status(status)
+      .status(500)
       .send({ success: status === 200, error, message: 'Error' })
   }
 })
 
 app.get('/api/collections', async (req, res) => {
-  let status = 200
-  let error = null
+
+  const { endCursor = '', hasNextPage = false, q = '' } = req.query
 
   try {
-    const data = await getCollections(res.locals.shopify.session)
+    const data = await getCollections(
+      res.locals.shopify.session,
+      endCursor,
+      hasNextPage,
+      q
+    )
 
     console.log('GET COLLECTIONS')
+
     return res.status(200).json({ data })
   } catch (error) {
     console.log('Error: ', error)
