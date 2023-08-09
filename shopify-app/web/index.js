@@ -164,13 +164,9 @@ app.get('/api/shop/currencyCode', async (req, res) => {
   }
 })
 
-
-app.post('/api/webhooks', (req, res) => {
-
-  const {topic} = req.body
-  
- 
-})
+// app.post('/api/webhooks', (req, res) => {
+//   const { topic } = req.body
+// })
 
 app.use(shopify.cspHeaders())
 app.use(serveStatic(STATIC_PATH, { index: false }))
@@ -182,4 +178,4 @@ app.use('/*', shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
     .send(readFileSync(join(STATIC_PATH, 'index.html')))
 })
 
-app.listen(PORT)
+app.listen(PORT, () => `Listening port ${PORT}`)

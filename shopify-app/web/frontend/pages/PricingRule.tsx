@@ -310,13 +310,13 @@ const PricingRulePage = () => {
                     node {
                       price
                     }
-                  }
-                  pageInfo {
-                    hasNextPage
-                    endCursor
-                  }
+                  }         
                 }
               }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
             }
           }
         }`
@@ -400,7 +400,9 @@ const PricingRulePage = () => {
 
         query = `{
           products(first: 25, query:"${subQuery}" ${
-          pageInfo.hasNextPage == 'true' ? `, after:"${pageInfo.endCursor}"` : ''
+          pageInfo.hasNextPage == 'true'
+            ? `, after:"${pageInfo.endCursor}"`
+            : ''
         }) {
             edges {
               node {
@@ -426,11 +428,6 @@ const PricingRulePage = () => {
     console.log('Query Table: ', query)
 
     try {
-      let hadNextPage = true
-      let endCursor = ''
-      while (hadNextPage) {
-
-      }
       const res = await fetch('/api/product/tablePrice', {
         method: 'POST',
         headers: {
