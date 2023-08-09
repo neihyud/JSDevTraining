@@ -90,10 +90,7 @@ export async function getProductTags(session) {
       title: edge.node,
     }))
 
-    return {
-      tags,
-      pageInfo: body.data.shop.productTags.pageInfo,
-    }
+    return tags
   } catch (error) {
     if (error instanceof GraphqlQueryError) {
       throw new Error(

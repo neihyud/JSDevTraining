@@ -5,54 +5,74 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../types'
 import { CirclePlusMinor } from '@shopify/polaris-icons'
 import { useAppQuery } from '../../hooks'
-import { useAuthenticatedFetch } from '../../hooks'
-import useDebounce from '../../hooks/useDebounce'
 
 const ProductTags = ({ error }) => {
-  const fetch = useAuthenticatedFetch()
-  const dispatch = useDispatch()
+  const paginationInterval = 25
 
   const [isLoading, setIsLoading] = useState(true)
-  const [pageInfo, setPageInfo] = useState({
-    endCursor: '',
-    hasNextPage: false,
+
+  const { data = {} } = useAppQuery({
+    url: '/api/shop/productTags',
+    reactQueryOptions: {
+      onSuccess: () => {
+        setIsLoading(false)
+      },
+    },
   })
 
-  const [pageInfoSearch, setPageInfoSearch] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
-
-  const [tagsSearch, setTagsSearch] = useState([])
+  const [deselectedOptions, setDeselectedOptions] = useState([])
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [options, setOptions] = useState([])
+  const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
+  const [visibleOptionIndex, setVisibleOptionIndex] =
+    useState(paginationInterval)
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const handleLoadMoreResults = useCallback(() => {
+    if (willLoadMoreResults) {
+      setIsLoading(true)
 
-  const debouncedValue = useDebounce(searchTerm, 500)
+      setTimeout(() => {
+        const remainingOptionCount = options.length - visibleOptionIndex
+        const nextVisibleOptionIndex =
+          remainingOptionCount >= paginationInterval
+            ? visibleOptionIndex + paginationInterval
+            : visibleOptionIndex + remainingOptionCount
+
+        setIsLoading(false)
+        setVisibleOptionIndex(nextVisibleOptionIndex)
+
+        if (remainingOptionCount <= paginationInterval) {
+          setWillLoadMoreResults(false)
+        }
+      }, 1000)
+    }
+  }, [willLoadMoreResults, visibleOptionIndex, options.length])
 
   // once call
-  const selectedTag = useSelector(
+  const selectedOptionsTag = useSelector(
     (state: RootState) => state.products.productTags,
     () => true
   )
-
   /// ====== =======
-
-  useEffect(async () => {
-    if (isLoading) {
-      const res = await fetch('/api/shop/productTags')
-      const { data = {} } = await res.json()
-
-      setIsLoading(false)
-      dispatch({ type: 'GET_TAGS', payload: data.tags })
-      setPageInfo(() => ({ ...data.pageInfo }))
-    }
-  }, [])
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    setSelectedOptions(selectedTag)
-  }, [selectedTag])
+    let { data: temp = [] } = data
+
+    const deselectedOptions = temp.map((_, index) => ({
+      value: `${_.title}`,
+      label: `${_.title}`,
+    }))
+
+    setDeselectedOptions(deselectedOptions)
+    setOptions(deselectedOptions)
+  }, [data])
+
+  useEffect(() => {
+    setSelectedOptions(selectedOptionsTag)
+  }, [])
 
   useEffect(() => {
     dispatch({
@@ -61,25 +81,39 @@ const ProductTags = ({ error }) => {
     })
   }, [dispatch, selectedOptions])
 
-  let willLoadMoreResults = searchTerm
-    ? pageInfoSearch.hasNextPage
-    : pageInfo.hasNextPage
+  const removeTag = useCallback(
+    (tag: string) => () => {
+      const options = [...selectedOptions]
+      options.splice(options.indexOf(tag), 1)
+      setSelectedOptions(options)
+    },
+    [selectedOptions]
+  )
 
-  const removeTag = (tag: string) => () => {
-    const options = [...selectedOptions]
-    options.splice(options.indexOf(tag), 1)
-    setSelectedOptions(options)
-  }
+  const updateText = useCallback(
+    (value: string) => {
+      setInputValue(value)
 
-  const updateText = (value) => {
-    setSearchTerm(value)
-  }
+      if (value === '') {
+        setOptions(deselectedOptions)
+        return
+      }
+
+      const filterRegex = new RegExp(value, 'i')
+      const resultOptions = deselectedOptions.filter((option) =>
+        option.label.match(filterRegex)
+      )
+
+      setOptions(resultOptions)
+    },
+    [deselectedOptions]
+  )
 
   const textField = (
     <Autocomplete.TextField
       onChange={updateText}
       label=""
-      value={searchTerm}
+      value={inputValue}
       placeholder="Vintage, cotton, summer"
       autoComplete="off"
     />
@@ -99,27 +133,16 @@ const ProductTags = ({ error }) => {
         )
       })
     : null
-
+  const optionList = options.slice(0, visibleOptionIndex)
   const selectedTagMarkup = hasSelectedOptions ? (
     <LegacyStack spacing="extraTight">{tagsMarkup}</LegacyStack>
   ) : null
-
-  let allTagTemp = useSelector((state) => state.products.allTags).map((tag) => {
-    return {
-      value: `${tag.title}`,
-      label: `${tag.title}`,
-    }
-  })
-
-  const tags = allTagTemp.filter((tag) => {
-    console.log('TAG: ', tag)
-    return tag.value.toLowerCase().includes(searchTerm.toLowerCase())
-  })
 
   return (
     <LegacyStack vertical>
       <Autocomplete
         actionBefore={{
+          accessibilityLabel: 'Action label',
           content: 'Add',
           icon: CirclePlusMinor,
           onAction: () => {
@@ -127,13 +150,13 @@ const ProductTags = ({ error }) => {
           },
         }}
         allowMultiple
-        options={tags}
+        options={optionList}
         selected={selectedOptions}
         textField={textField}
         onSelect={setSelectedOptions}
         listTitle="SUGGESTED TAGS"
         loading={isLoading}
-        // onLoadMoreResults={handleLoadMoreResults}
+        onLoadMoreResults={handleLoadMoreResults}
         willLoadMoreResults={willLoadMoreResults}
         preferredPosition={'below'}
         emptyState={
@@ -143,9 +166,10 @@ const ProductTags = ({ error }) => {
               justifyContent: 'center',
               fontSize: '18px',
               fontWeight: '700',
+              margin:'10px 0'
             }}
           >
-            No collection
+            No Tags
           </div>
         }
       />
