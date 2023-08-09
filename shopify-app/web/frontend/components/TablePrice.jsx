@@ -1,15 +1,20 @@
 import { DataTable, Layout, Spinner } from '@shopify/polaris'
 import React, { memo, useEffect, useState } from 'react'
 
-const TablePrice = ({ rows, isLoading }) => {
+const TablePrice = ({ rows, isLoading, currencyCode }) => {
   return (
-    <div style={{ maxHeight: '700px', overflow: 'auto' }}>
+    <div style={{ maxHeight: '785px', overflow: 'auto' }}>
       <Layout.Section secondary>
         <DataTable
-          columnContentTypes={['text', 'text', 'text']}
-          headings={[<b>Product</b>, <b>Old Price</b>, <b>New Price</b>]}
+          columnContentTypes={['text', 'numeric', 'numeric']}
+          headings={[
+            <b>Product</b>,
+            <b>Old Price ({currencyCode})</b>,
+            <b>New Price ({currencyCode})</b>,
+          ]}
           rows={rows}
-          // stickyHeader
+          verticalAlign="bottom"
+          hasZebraStripingOnData={true}
         />
         {isLoading && (
           <div
@@ -20,13 +25,13 @@ const TablePrice = ({ rows, isLoading }) => {
               transform: 'translate(-50%, -50%)',
               marginTop: '50px',
               display: 'flex',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
             <Spinner size="large" />
           </div>
         )}
-      </Layout.Section> 
+      </Layout.Section>
     </div>
   )
 }

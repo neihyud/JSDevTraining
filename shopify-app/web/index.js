@@ -13,6 +13,7 @@ import {
   getDataTable,
   getProducts,
   getCollections,
+  getCurrencyCode,
 } from './service/product.js'
 
 const PORT = parseInt(
@@ -71,15 +72,8 @@ app.get('/api/shop/productTags', async (_req, res) => {
   let status = 200
   let error = null
 
-  const { endCursor = '', hasNextPage = false, q = '' } = _req.query
-
   try {
-    const data = await getProductTags(
-      res.locals.shopify.session,
-      endCursor,
-      hasNextPage,
-      q
-    )
+    const data = await getProductTags(res.locals.shopify.session)
 
     return res.status(200).json({ data })
   } catch (e) {
@@ -155,6 +149,15 @@ app.get('/api/collections', async (req, res) => {
   } catch (error) {
     console.log('Error: ', error)
 
+    return res.status(500).send({ error, message: 'Error' })
+  }
+})
+
+app.get('/api/shop/currencyCode', async (req, res) => {
+  try {
+    const currencyCode = await getCurrencyCode(res.locals.shopify.session)
+    return res.status(200).json({ currencyCode })
+  } catch (error) {
     return res.status(500).send({ error, message: 'Error' })
   }
 })

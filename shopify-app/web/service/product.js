@@ -56,7 +56,7 @@ export const getDataTable = async (session, query, type) => {
     //     `${error.message}\n${JSON.stringify(error.response, null, 2)}`
     //   )
     // } else {
-    //   throw error
+    throw error
     // }
   }
 }
@@ -66,7 +66,7 @@ export async function getProductTags(session) {
 
   const query = `{
     shop {
-      productTags(first: ${PAGE_SIZE}) {
+      productTags(first: 250) {
         edges {
           node
         }
@@ -92,7 +92,7 @@ export async function getProductTags(session) {
 
     return {
       tags,
-      pageInfo: body.data.shop.productTags.pageInfo
+      pageInfo: body.data.shop.productTags.pageInfo,
     }
   } catch (error) {
     if (error instanceof GraphqlQueryError) {
@@ -152,11 +152,9 @@ export const getProducts = async (session, endCursor, hasNextPage, q) => {
         url =
           'https://imgv3.fotor.com/images/blog-richtext-image/part-blurry-image.jpg'
       }
-      // console.log("title: ", edge.node.title)
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
-    console.log('PRoducts: ', products)
     return {
       products,
       pageInfo: body.data.products.pageInfo,
@@ -224,3 +222,46 @@ export const getCollections = async (session, endCursor, hasNextPage, q) => {
     }
   }
 }
+
+export const getCurrencyCode = async (session) => {
+  const client = new shopify.api.clients.Graphql({ session })
+
+  const query = `{shop { currencyCode} }`
+  try {
+    const { body = {} } = await client.query({
+      data: {
+        query: query,
+      },
+    })
+
+    return body.data.shop.currencyCode
+  } catch (error) {
+    if (error instanceof GraphqlQueryError) {
+      throw new Error(
+        `${error.message}\n${JSON.stringify(error.response, null, 2)}`
+      )
+    } else {
+      throw error
+    }
+  }
+}
+
+/* 
+
+ for async id-c -> ids-c[]
+    const 
+    call -> api - 1 collection
+      5 products
+      dispatch( -> update table)
+      if ()
+      return 
+
+    function* foo(index) {
+      while (index < 2) {
+        yield index;
+        index++;
+      }
+}
+
+
+*/

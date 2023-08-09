@@ -44,6 +44,8 @@ const PricingRulePage = () => {
     amount3: '',
   })
 
+  const [currencyCode, setCurrencyCode] = useState('')
+
   const [isOpenModal, setIsOpenModal] = useState(false)
 
   const [storeName, setStoreName] = useState('')
@@ -56,6 +58,16 @@ const PricingRulePage = () => {
     endCursor: '',
     hasNextPage: false,
   })
+
+  useEffect(() => {
+    fetch('/api/shop/currencyCode')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('Daa - currencyCode: ', data)
+        setCurrencyCode(data.currencyCode)
+      })
+      .catch((error) => alert(error))
+  }, [])
 
   const handleFocusSpecificProduct = () => {
     setIsOpenModal(true)
@@ -285,9 +297,29 @@ const PricingRulePage = () => {
 
     switch (selectedProduct[0]) {
       case '1':
-        query = `{ products (first: 25, ${
-          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
-        }) { edges { node { title variants(first: 1) { edges { node { price } } } } } } }`
+        //  products(first: 25 ${
+        //   hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+        // })
+        query = `{
+          products(first: 25 ) {
+            edges {
+              node {
+                title
+                variants(first: 1) {
+                  edges {
+                    node {
+                      price
+                    }
+                  }
+                  pageInfo {
+                    hasNextPage
+                    endCursor
+                  }
+                }
+              }
+            }
+          }
+        }`
         break
       case '2':
         subQuery = specificsProducts
@@ -299,12 +331,14 @@ const PricingRulePage = () => {
 
         query = `{
             products (first: 25, query:"${subQuery}" ${
-          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+          pageInfo.hasNextPage == 'true'
+            ? `, after:"${pageInfo.endCursor}"`
+            : ''
         }) {
               edges {
                 node {
                   title
-                  variants(first: 5) { 
+                  variants(first: 1) { 
                     edges { 
                       node { 
                         price 
@@ -366,7 +400,7 @@ const PricingRulePage = () => {
 
         query = `{
           products(first: 25, query:"${subQuery}" ${
-          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+          pageInfo.hasNextPage == 'true' ? `, after:"${pageInfo.endCursor}"` : ''
         }) {
             edges {
               node {
@@ -391,47 +425,41 @@ const PricingRulePage = () => {
 
     console.log('Query Table: ', query)
 
-    const res = await fetch('/api/product/tablePrice', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: query, type: selectedProduct[0] }),
-    })
+    try {
+      const res = await fetch('/api/product/tablePrice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query, type: selectedProduct[0] }),
+      })
 
-    
-    const { data = [] } = await res.json()
-    setIsLoading(false)
+      const { data = [] } = await res.json()
+      setIsLoading(false)
 
-    const rowsTemp = data.map((row, index) => {
-      let newPrice = null
+      const rowsTemp = data.map((row) => {
+        let newPrice = 0
 
-      switch (selectedPrice[0]) {
-        case '1':
-          newPrice = amount
-          break
-        case '2':
-          newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
-          break
-        case '3':
-          newPrice = (+row.price * (100 - +amount)) / 100
-          break
-        default:
-          newPrice = null
-      }
+        switch (selectedPrice[0]) {
+          case '1':
+            newPrice = amount
+            break
+          case '2':
+            newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
+            break
+          case '3':
+            newPrice = (+row.price * (100 - +amount)) / 100
+            break
+          default:
+            newPrice = 0
+        }
+        return [row.title, row.price, newPrice]
+      })
 
-      // if (selectedPrice[0] == '1') {
-      //   newPrice = amount
-      // } else if (selectedPrice[0] == '2') {
-      //   newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
-      // } else if (selectedPrice[0] == '3') {
-      //   newPrice = (+row.price * (100 - +amount)) / 100
-      // }
-
-      return [row.title, row.price, newPrice]
-    })
-
-    setRows(rowsTemp)
+      setRows(rowsTemp)
+    } catch (error) {
+      alert(error)
+    }
   }
 
   let additionalFieldProduct = <></>
@@ -563,7 +591,11 @@ const PricingRulePage = () => {
           </LegacyCard>
         </Layout.Section>
 
-        <TablePrice rows={rows} isLoading={isLoading} />
+        <TablePrice
+          rows={rows}
+          isLoading={isLoading}
+          currencyCode={currencyCode}
+        />
       </Layout>
 
       <ModalSpecificProduct openModal={setIsOpenModal} isOpen={isOpenModal} />

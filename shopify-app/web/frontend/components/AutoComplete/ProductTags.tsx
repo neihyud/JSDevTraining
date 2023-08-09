@@ -31,30 +31,12 @@ const ProductTags = ({ error }) => {
 
   const debouncedValue = useDebounce(searchTerm, 500)
 
-  const handleLoadMoreResults = () => {
-    if (willLoadMoreResults && !isLoading && !searchTerm) {
-      setIsLoading(true)
-
-      fetch(
-        `/api/shop/productTags?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfo({ ...pageInfo, ...data.pageInfo })
-          dispatch({ type: 'GET_TAGS', payload: data.tags })
-        })
-        .catch((error) => alert(error))
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
-  }
-
   // once call
   const selectedTag = useSelector(
     (state: RootState) => state.products.productTags,
     () => true
   )
+
   /// ====== =======
 
   useEffect(async () => {
@@ -122,16 +104,17 @@ const ProductTags = ({ error }) => {
     <LegacyStack spacing="extraTight">{tagsMarkup}</LegacyStack>
   ) : null
 
-  const getOptions = (tags) => {
-    return tags.map((tag) => ({
+  let allTagTemp = useSelector((state) => state.products.allTags).map((tag) => {
+    return {
       value: `${tag.title}`,
       label: `${tag.title}`,
-    }))
-  }
+    }
+  })
 
-  let allTagTemp = useSelector((state) => state.products.allTags)
-
-  const tags = searchTerm ? getOptions(tagsSearch) : getOptions(allTagTemp)
+  const tags = allTagTemp.filter((tag) => {
+    console.log('TAG: ', tag)
+    return tag.value.toLowerCase().includes(searchTerm.toLowerCase())
+  })
 
   return (
     <LegacyStack vertical>
@@ -150,7 +133,7 @@ const ProductTags = ({ error }) => {
         onSelect={setSelectedOptions}
         listTitle="SUGGESTED TAGS"
         loading={isLoading}
-        onLoadMoreResults={handleLoadMoreResults}
+        // onLoadMoreResults={handleLoadMoreResults}
         willLoadMoreResults={willLoadMoreResults}
         preferredPosition={'below'}
         emptyState={
