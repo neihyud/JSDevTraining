@@ -16,6 +16,8 @@ import {
   getCurrencyCode,
 } from './service/product.js'
 
+import { ADDRESS_WEBHOOK } from './frontend/constant/constant.js'
+
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || '3000',
   10
@@ -160,6 +162,14 @@ app.get('/api/shop/currencyCode', async (req, res) => {
   } catch (error) {
     return res.status(500).send({ error, message: 'Error' })
   }
+})
+
+
+app.post('/api/webhooks', (req, res) => {
+
+  const {topic} = req.body
+  
+ 
 })
 
 app.use(shopify.cspHeaders())

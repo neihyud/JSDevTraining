@@ -243,6 +243,15 @@ export const getCurrencyCode = async (session) => {
   }
 }
 
+export const createWebHooks = async (session) => {
+  const webhook = new shopify.rest.Webhook({ session })
+  webhook.address = ADDRESS_WEBHOOK
+  webhook.topic = topic
+  webhook.format = 'json'
+  await webhook.save({
+    update: true,
+  })
+}
 /* 
 
  for async id-c -> ids-c[]

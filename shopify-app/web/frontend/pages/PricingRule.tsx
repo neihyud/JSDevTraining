@@ -426,6 +426,11 @@ const PricingRulePage = () => {
     console.log('Query Table: ', query)
 
     try {
+      let hadNextPage = true
+      let endCursor = ''
+      while (hadNextPage) {
+
+      }
       const res = await fetch('/api/product/tablePrice', {
         method: 'POST',
         headers: {
@@ -435,6 +440,7 @@ const PricingRulePage = () => {
       })
 
       const { data = [] } = await res.json()
+
       setIsLoading(false)
 
       const rowsTemp = data.map((row) => {
