@@ -5,13 +5,14 @@ import React, { useState, useCallback, useEffect } from 'react'
 import type { RootState } from '../../types/index'
 import { useDispatch, useSelector } from 'react-redux'
 import ResourceListProduct from '../Common/ResourceListProduct'
-import { useAuthenticatedFetch, useDebounce } from '../../hooks'
+import { useAuthenticatedFetch } from '../../hooks'
+import useDebounce from '../../hooks/useDebounce'
 
 const ProductCollection = ({ error }) => {
   const fetch = useAuthenticatedFetch()
   const dispatch = useDispatch()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [pageInfo, setPageInfo] = useState({
     endCursor: '',
     hasNextPage: false,
@@ -28,33 +29,20 @@ const ProductCollection = ({ error }) => {
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const debounceValue = useDebounce(searchTerm, 500)
-
-  // const [deselectedOptions, setDeselectedOptions] = useState([])
-
-  const [options, setOptions] = useState(deselectedOptions)
+  const debouncedValue = useDebounce(searchTerm, 500)
 
   useEffect(async () => {
-    if (!isLoading) {
+    if (isLoading) {
       const res = await fetch('/api/collections')
       const { data = {} } = await res.json()
-
-      // const deselectedOptions = data.map((_, index) => ({
-      //   value: `${_.id}`,
-      //   label: `${_.title}`,
-      // }))
-
-      // setDeselectedOptions(deselectedOptions)
-      // setOptions(deselectedOptions)
 
       setIsLoading(false)
 
       dispatch({ type: 'GET_COLLECTIONS', payload: [...data.collections] })
+
+      setPageInfo(() => ({ ...data.pageInfo }))
     }
   }, [])
-
-  // const [willLoadMoreResults, setWillLoadMoreResults] = useState(true)
-  // const [visibleOptionIndex, setVisibleOptionIndex] = useState(paginationInterval)
 
   // once call
   const selectedCollection = useSelector(
@@ -73,51 +61,88 @@ const ProductCollection = ({ error }) => {
     })
   }, [dispatch, selectedOptions])
 
+  useEffect(() => {
+    setIsLoading(true)
+    setCollectionsSearch([])
+    setPageInfoSearch({ endCursor: '', hasNextPage: false })
+
+    console.log('Debounced Value: ', debouncedValue)
+    if (debouncedValue.trim()) {
+      fetch(
+        `/api/collections/?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
+      )
+        .then((res) => res.json())
+        .then(({ data }) => {
+          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
+          setCollectionsSearch([...data.collections])
+        })
+        .catch((error) => {
+          alert(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    } else {
+      setIsLoading(false)
+    }
+  }, [debouncedValue])
+
+  let willLoadMoreResults = searchTerm
+    ? pageInfoSearch.hasNextPage
+    : pageInfo.hasNextPage
+
   const removeTag = (tag: string) => () => {
     const options = [...selectedOptions]
     options.splice(options.indexOf(tag), 1)
     setSelectedOptions(options)
   }
-  
+
   const handleLoadMoreResults = () => {
-    if (willLoadMoreResults) {
+    console.log('Loading more result ... ')
+    if (willLoadMoreResults && !isLoading && !searchTerm) {
       setIsLoading(true)
 
-      setTimeout(() => {
-        const remainingOptionCount = options.length - visibleOptionIndex
-        const nextVisibleOptionIndex =
-          remainingOptionCount >= paginationInterval
-            ? visibleOptionIndex + paginationInterval
-            : visibleOptionIndex + remainingOptionCount
+      fetch(
+        `/api/collections?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
+      )
+        .then((res) => res.json())
+        .then(({ data }) => {
+          setPageInfo({ ...pageInfo, ...data.pageInfo })
 
-        setIsLoading(false)
-        setVisibleOptionIndex(nextVisibleOptionIndex)
+          dispatch({ type: 'GET_COLLECTIONS', payload: data.collections })
+        })
+        .catch(() => {
+          alert(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    }
 
-        if (remainingOptionCount <= paginationInterval) {
-          setWillLoadMoreResults(false)
-        }
-      }, 1000)
+    if (willLoadMoreResults && !isLoading && searchTerm) {
+      setIsLoading(true)
+
+      fetch(
+        `/api/collections?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${searchTerm}`
+      )
+        .then((res) => res.json())
+        .then(({ data }) => {
+          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
+          setCollectionsSearch([...collectionsSearch, ...data.collections])
+        })
+        .catch(() => {
+          alert(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
     }
   }
 
-  const updateText = useCallback(
-    (value: string) => {
-      setSearchTerm(value)
-
-      if (value === '') {
-        setOptions(deselectedOptions)
-        return
-      }
-
-      const filterRegex = new RegExp(value, 'i')
-      const resultOptions = deselectedOptions.filter((option) =>
-        option.label.match(filterRegex)
-      )
-
-      setOptions(resultOptions)
-    },
-    [deselectedOptions]
-  )
+  const updateText = (value) => {
+    console.log("Value Search: ", value)
+    setSearchTerm(value)
+  }
 
   const textField = (
     <Autocomplete.TextField
@@ -137,14 +162,27 @@ const ProductCollection = ({ error }) => {
       selectedOptions={selectedOptions}
     />
   ) : null
-  const optionList = options.slice(0, visibleOptionIndex)
+
+  const getOptions = (products) => {
+    return products.map((product) => ({
+      value: `${product.id}`,
+      label: `${product.title}`,
+    }))
+  }
+
+  let allCollectionTemp = useSelector((state) => state.products.allCollection)
+
+  const collections = searchTerm
+    ? getOptions(collectionsSearch)
+    : getOptions(allCollectionTemp)
+
   const selectedTagMarkup = hasSelectedOptions ? tagsMarkup : null
 
   return (
     <LegacyStack vertical>
       <Autocomplete
         allowMultiple
-        options={optionList}
+        options={collections}
         selected={selectedOptions}
         textField={textField}
         onSelect={setSelectedOptions}
@@ -152,6 +190,7 @@ const ProductCollection = ({ error }) => {
         loading={isLoading}
         onLoadMoreResults={handleLoadMoreResults}
         willLoadMoreResults={willLoadMoreResults}
+        emptyState={<div style={{display: 'flex', justifyContent: 'center', fontSize: '18px', fontWeight: "700"}}>No collection</div>}
       />
       {error && (
         <span style={{ color: 'red', position: 'relative', top: '-10px' }}>

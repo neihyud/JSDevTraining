@@ -5,9 +5,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../types'
 import { CirclePlusMinor } from '@shopify/polaris-icons'
 import { useAppQuery } from '../../hooks'
+import { useAuthenticatedFetch } from '../../hooks'
+import useDebounce from '../../hooks/useDebounce'
+
 
 const ProductTags = ({ error }) => {
-  const paginationInterval = 25
+
+  const fetch = useAuthenticatedFetch()
+  const dispatch = useDispatch()
 
   const [isLoading, setIsLoading] = useState(true)
 

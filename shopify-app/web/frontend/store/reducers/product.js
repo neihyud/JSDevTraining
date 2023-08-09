@@ -48,6 +48,7 @@ const productReducer = (state = initState, action) => {
         productTags: [...action.payload],
       }
       break
+      
     case 'GET_PRODUCTS':
       console.log('Action Payload: ', action.payload)
       return {

@@ -175,6 +175,7 @@ export const getCollections = async (session, endCursor, hasNextPage, q) => {
                     }
                   }`
 
+  console.log('Query Collection: ', query)
   try {
     const { body = {} } = await client.query({
       data: {
@@ -189,9 +190,10 @@ export const getCollections = async (session, endCursor, hasNextPage, q) => {
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
+    console.log("DATA COLLECTIONS: ", collections)
     return {
       collections,
-      pageInfo: body.data.products.pageInfo,
+      pageInfo: body.data.collections.pageInfo,
     }
   } catch (error) {
     if (error instanceof GraphqlQueryError) {

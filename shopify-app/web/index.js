@@ -106,7 +106,6 @@ app.post('/api/product/tablePrice', async (_req, res) => {
       .status(status)
       .send({ success: status === 200, error, message: 'Error' })
   }
-
 })
 
 app.get('/api/products', async (req, res) => {
@@ -136,7 +135,6 @@ app.get('/api/products', async (req, res) => {
 })
 
 app.get('/api/collections', async (req, res) => {
-
   const { endCursor = '', hasNextPage = false, q = '' } = req.query
 
   try {
@@ -149,6 +147,7 @@ app.get('/api/collections', async (req, res) => {
 
     console.log('GET COLLECTIONS')
 
+    console.log('{ DATA COLLECTION }: ', { data })
     return res.status(200).json({ data })
   } catch (error) {
     console.log('Error: ', error)
