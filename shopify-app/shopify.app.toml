@@ -2,7 +2,7 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://stats-walls-beverages-schedules.trycloudflare.com"
+application_url = "https://gel-panel-robot-instantly.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://stats-walls-beverages-schedules.trycloudflare.com/auth/callback",
-  "https://stats-walls-beverages-schedules.trycloudflare.com/auth/shopify/callback",
-  "https://stats-walls-beverages-schedules.trycloudflare.com/api/auth/callback"
+  "https://gel-panel-robot-instantly.trycloudflare.com/auth/callback",
+  "https://gel-panel-robot-instantly.trycloudflare.com/auth/shopify/callback",
+  "https://gel-panel-robot-instantly.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

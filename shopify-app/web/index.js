@@ -71,14 +71,17 @@ app.get('/api/shop/productTags', async (_req, res) => {
   let status = 200
   let error = null
 
-  try {
-    const tags = await getProductTags(res.locals.shopify.session)
+  const { endCursor = '', hasNextPage = false, q = '' } = _req.query
 
-    // // return 2
-    // return data
-    return res
-      .status(status)
-      .send({ success: status === 200, error, data: tags ? tags : [] })
+  try {
+    const data = await getProductTags(
+      res.locals.shopify.session,
+      endCursor,
+      hasNextPage,
+      q
+    )
+
+    return res.status(200).json({ data })
   } catch (e) {
     console.log(`Failed to process get product tag: ${e.message}`)
     status = 500

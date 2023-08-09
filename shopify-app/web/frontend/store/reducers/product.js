@@ -14,12 +14,12 @@ const productReducer = (state = initState, action) => {
         ...state,
         specificProducts: [...action.payload],
       }
-    case 'ADD_SPECIFIC_PRODUCT':
-      return {
-        ...state,
-        specificProducts: [...state.specificProducts, action.payload],
-      }
-      break
+    // case 'ADD_SPECIFIC_PRODUCT':
+    //   return {
+    //     ...state,
+    //     specificProducts: [...state.specificProducts, action.payload],
+    //   }
+    //   break
     case 'REMOVE_SPECIFIC_PRODUCT':
       return {
         ...state,
@@ -48,7 +48,7 @@ const productReducer = (state = initState, action) => {
         productTags: [...action.payload],
       }
       break
-      
+
     case 'GET_PRODUCTS':
       console.log('Action Payload: ', action.payload)
       return {
@@ -59,6 +59,11 @@ const productReducer = (state = initState, action) => {
       return {
         ...state,
         allCollection: [...state.allCollection, ...action.payload],
+      }
+    case 'GET_TAGS':
+      return {
+        ...state,
+        allTags: [...state.allTags, ...action.payload],
       }
     default:
       return state

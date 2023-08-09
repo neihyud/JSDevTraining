@@ -15,17 +15,19 @@ export const getDataTable = async (session, query, type) => {
 
     switch (type) {
       case '1':
-        data = body.data.products.edges.map((edge, index) => {
-          const price = edge.node.variants.edges[0].node.price
-          return { title: edge.node.title, price: price }
-        })
-        break
       case '2':
-        data = body.data.products.edges.map((edge, index) => {
+      case '4':
+        data = body.data.products.edges.map((edge) => {
           const price = edge.node.variants.edges[0].node.price
           return { title: edge.node.title, price: price }
         })
         break
+      // case '2':
+      //   data = body.data.products.edges.map((edge, index) => {
+      //     const price = edge.node.variants.edges[0].node.price
+      //     return { title: edge.node.title, price: price }
+      //   })
+      //   break
       case '3':
         const dataTemp = body.data.collections.edges.map((edges) => {
           return edges.node.products.edges.map((edge) => {
@@ -35,12 +37,12 @@ export const getDataTable = async (session, query, type) => {
         })
         data = dataTemp.flat(Infinity)
         break
-      case '4':
-        data = body.data.products.edges.map((edge) => {
-          const price = edge.node.variants.edges[0].node.price
-          return { title: edge.node.title, price: price }
-        })
-        break
+      // case '4':
+      //   data = body.data.products.edges.map((edge) => {
+      //     const price = edge.node.variants.edges[0].node.price
+      //     return { title: edge.node.title, price: price }
+      //   })
+      //   break
       default:
         data = []
     }
@@ -62,7 +64,19 @@ export const getDataTable = async (session, query, type) => {
 export async function getProductTags(session) {
   const client = new shopify.api.clients.Graphql({ session })
 
-  const query = `{ shop { productTags(first: ${PAGE_SIZE}) { edges { node } } } }`
+  const query = `{
+    shop {
+      productTags(first: ${PAGE_SIZE}) {
+        edges {
+          node
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }`
   try {
     const { body = {} } = await client.query({
       data: {
@@ -72,9 +86,14 @@ export async function getProductTags(session) {
 
     const edges = body.data.shop.productTags.edges
 
-    return edges.map((edge) => ({
-      name: edge.node,
+    const tags = edges.map((edge) => ({
+      title: edge.node,
     }))
+
+    return {
+      tags,
+      pageInfo: body.data.shop.productTags.pageInfo
+    }
   } catch (error) {
     if (error instanceof GraphqlQueryError) {
       throw new Error(
@@ -190,7 +209,7 @@ export const getCollections = async (session, endCursor, hasNextPage, q) => {
       return { title: edge.node.title, url, id: edge.node.id }
     })
 
-    console.log("DATA COLLECTIONS: ", collections)
+    console.log('DATA COLLECTIONS: ', collections)
     return {
       collections,
       pageInfo: body.data.collections.pageInfo,

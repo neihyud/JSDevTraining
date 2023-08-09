@@ -52,6 +52,11 @@ const PricingRulePage = () => {
 
   const [rows, setRows] = useState([])
 
+  const [pageInfo, setPageInfo] = useState({
+    endCursor: '',
+    hasNextPage: false,
+  })
+
   const handleFocusSpecificProduct = () => {
     setIsOpenModal(true)
   }
@@ -180,25 +185,44 @@ const PricingRulePage = () => {
 
     console.log('SelectedPrice[0]: ', selectedPrice[0])
 
-    if (
-      selectedPrice[0] == '3' &&
-      (amount.trim().length == 0 ||
-        parseFloat(amount) < 1 ||
-        parseFloat(amount) > 100)
-    ) {
-      console.log('BW: ', selectedPrice[0])
-      err.amount3 = 'Discount value must be between 1 and 100'
-    } else if (
-      selectedPrice[0] == '2' &&
-      (amount.trim().length == 0 || parseFloat(amount) < 1)
-    ) {
-      err.amount2 = 'Discount value must be greater than 1'
-    } else if (selectedPrice[0] == '1' && amount < 0) {
-      console.log('True')
-      err.amount1 = 'Discount value must be not empty'
+    switch (selectedPrice[0]) {
+      case '3':
+        if (
+          amount.trim().length == 0 ||
+          parseFloat(amount) < 1 ||
+          parseFloat(amount) > 100
+        ) {
+          err.amount3 = 'Discount value must be between 1 and 100'
+        }
+        break
+      case '2':
+        if (amount.trim().length == 0 || parseFloat(amount) < 1) {
+          err.amount2 = 'Discount value must be greater than 1'
+        }
+        break
+      case '1':
+        if (amount < 0) {
+          err.amount1 = 'Discount value must be not empty'
+        }
     }
 
-    console.log('Err: ', err)
+    // if (
+    //   selectedPrice[0] == '3' &&
+    //   (amount.trim().length == 0 ||
+    //     parseFloat(amount) < 1 ||
+    //     parseFloat(amount) > 100)
+    // ) {
+    //   console.log('BW: ', selectedPrice[0])
+    //   err.amount3 = 'Discount value must be between 1 and 100'
+    // } else if (
+    //   selectedPrice[0] == '2' &&
+    //   (amount.trim().length == 0 || parseFloat(amount) < 1)
+    // ) {
+    //   err.amount2 = 'Discount value must be greater than 1'
+    // } else if (selectedPrice[0] == '1' && amount < 0) {
+    //   console.log('True')
+    //   err.amount1 = 'Discount value must be not empty'
+    // }
 
     if (
       err.priority ||
@@ -207,15 +231,16 @@ const PricingRulePage = () => {
       err[`empField${selectedProduct[0]}`]
     ) {
       setError(err)
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     } else {
       console.log('No error')
       setIsLoading(true)
       setRows([])
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
 
       console.log('Prev handle table ...')
 
+      handleTable()
+
+      // Save Local Storage
       let dataTemp = []
       switch (selectedProduct[0]) {
         case '1':
@@ -232,7 +257,6 @@ const PricingRulePage = () => {
         default:
           dataTemp = []
       }
-
       localStorage.setItem('products', JSON.stringify(dataTemp))
 
       switch (selectedPrice[0]) {
@@ -248,11 +272,11 @@ const PricingRulePage = () => {
         default:
           dataTemp = {}
       }
-
       localStorage.setItem('price', JSON.stringify(dataTemp))
       localStorage.setItem('storeName', JSON.stringify(storeName))
-      handleTable()
     }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
   }
 
   const handleTable = async () => {
@@ -261,7 +285,9 @@ const PricingRulePage = () => {
 
     switch (selectedProduct[0]) {
       case '1':
-        query = `{ products (first: 25) { edges { node { title variants(first: 5) { edges { node { price } } } } } } }`
+        query = `{ products (first: 25, ${
+          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+        }) { edges { node { title variants(first: 1) { edges { node { price } } } } } } }`
         break
       case '2':
         subQuery = specificsProducts
@@ -272,7 +298,9 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-            products (first: 25, query:"${subQuery}") {
+            products (first: 25, query:"${subQuery}" ${
+          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+        }) {
               edges {
                 node {
                   title
@@ -284,6 +312,10 @@ const PricingRulePage = () => {
                     } 
                   }
                 }
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
               }
             }
           }`
@@ -297,7 +329,9 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-            collections (first:5, query:"${subQuery}") {
+            collections (first:5, query:"${subQuery}" ${
+          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+        }) {
               edges {
                 node {
                   products(first:20) {
@@ -313,6 +347,10 @@ const PricingRulePage = () => {
                         }
                       }
                     }
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
                   }
                 }
               }
@@ -327,7 +365,9 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-          products(first: 25, query:"${subQuery}") {
+          products(first: 25, query:"${subQuery}" ${
+          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
+        }) {
             edges {
               node {
                 title
@@ -358,19 +398,35 @@ const PricingRulePage = () => {
       },
       body: JSON.stringify({ query: query, type: selectedProduct[0] }),
     })
-    setIsLoading(false)
 
+    
     const { data = [] } = await res.json()
+    setIsLoading(false)
 
     const rowsTemp = data.map((row, index) => {
       let newPrice = null
-      if (selectedPrice[0] == '1') {
-        newPrice = amount
-      } else if (selectedPrice[0] == '2') {
-        newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
-      } else if (selectedPrice[0] == '3') {
-        newPrice = (+row.price * (100 - +amount)) / 100
+
+      switch (selectedPrice[0]) {
+        case '1':
+          newPrice = amount
+          break
+        case '2':
+          newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
+          break
+        case '3':
+          newPrice = (+row.price * (100 - +amount)) / 100
+          break
+        default:
+          newPrice = null
       }
+
+      // if (selectedPrice[0] == '1') {
+      //   newPrice = amount
+      // } else if (selectedPrice[0] == '2') {
+      //   newPrice = +row.price - amount < 0 ? 0 : +row.price - amount
+      // } else if (selectedPrice[0] == '3') {
+      //   newPrice = (+row.price * (100 - +amount)) / 100
+      // }
 
       return [row.title, row.price, newPrice]
     })
@@ -388,12 +444,10 @@ const PricingRulePage = () => {
           error={error.empField2}
         />
       )
-      // additionalFieldProduct = <></>
 
       break
     case '3':
       additionalFieldProduct = <ProductCollection error={error.empField3} />
-      // additionalFieldProduct = <></>
 
       break
     case '4':
@@ -405,7 +459,6 @@ const PricingRulePage = () => {
   }
 
   return (
-    // <Provider store={store}>
     <Page
       title="New Pricing Rule"
       backAction={{ content: 'Products', url: '#' }}
@@ -512,7 +565,7 @@ const PricingRulePage = () => {
 
         <TablePrice rows={rows} isLoading={isLoading} />
       </Layout>
-      
+
       <ModalSpecificProduct openModal={setIsOpenModal} isOpen={isOpenModal} />
       <div style={{ padding: '40px' }}></div>
 
@@ -524,7 +577,6 @@ const PricingRulePage = () => {
         }}
       />
     </Page>
-    // </Provider>
   )
 }
 

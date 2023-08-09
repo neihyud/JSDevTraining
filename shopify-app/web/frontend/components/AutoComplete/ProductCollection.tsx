@@ -31,24 +31,22 @@ const ProductCollection = ({ error }) => {
 
   const debouncedValue = useDebounce(searchTerm, 500)
 
+  // once call
+  const selectedCollection = useSelector(
+    (state: RootState) => state.products.productCollection,
+    () => true
+  )
+
   useEffect(async () => {
     if (isLoading) {
       const res = await fetch('/api/collections')
       const { data = {} } = await res.json()
 
       setIsLoading(false)
-
-      dispatch({ type: 'GET_COLLECTIONS', payload: [...data.collections] })
-
+      dispatch({ type: 'GET_COLLECTIONS', payload: data.collections })
       setPageInfo(() => ({ ...data.pageInfo }))
     }
   }, [])
-
-  // once call
-  const selectedCollection = useSelector(
-    (state: RootState) => state.products.productCollection,
-    () => true
-  )
 
   useEffect(() => {
     setSelectedOptions(selectedCollection)
@@ -83,7 +81,7 @@ const ProductCollection = ({ error }) => {
           setIsLoading(false)
         })
     } else {
-      setIsLoading(false)
+      if (collectionsSearch.length != 0) setIsLoading(false)
     }
   }, [debouncedValue])
 
@@ -140,7 +138,7 @@ const ProductCollection = ({ error }) => {
   }
 
   const updateText = (value) => {
-    console.log("Value Search: ", value)
+    console.log('Value Search: ', value)
     setSearchTerm(value)
   }
 
@@ -190,7 +188,19 @@ const ProductCollection = ({ error }) => {
         loading={isLoading}
         onLoadMoreResults={handleLoadMoreResults}
         willLoadMoreResults={willLoadMoreResults}
-        emptyState={<div style={{display: 'flex', justifyContent: 'center', fontSize: '18px', fontWeight: "700"}}>No collection</div>}
+        preferredPosition={'below'}
+        emptyState={
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              fontSize: '18px',
+              fontWeight: '700',
+            }}
+          >
+            No collection
+          </div>
+        }
       />
       {error && (
         <span style={{ color: 'red', position: 'relative', top: '-10px' }}>
