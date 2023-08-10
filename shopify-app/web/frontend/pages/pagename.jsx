@@ -1,67 +1,49 @@
-import { Page } from '@shopify/polaris'
+import { Button, Page } from '@shopify/polaris'
 
 import React, { useState } from 'react'
-import { Provider, ResourcePicker } from '@shopify/app-bridge-react'
-import { useAppQuery } from '../hooks'
-import { useEffect } from 'react'
+import { useAuthenticatedFetch } from '../hooks'
 
 export default function PageName() {
-  const handleSelection = (selectionPayload) => {
-    console.log('selection: ', selectionPayload)
-  }
+  const fetch = useAuthenticatedFetch()
 
-  // const {
-  //   data
-  // } = useAppQuery({
-  //   url: '/api/shop/productTags',
-  //   reactQueryOptions: {
-  //     onSuccess: () => {
-  //       // setIsLoading(false)
-  //       console.log("loading false")
-  //     },
-  //   },
-  // })
+  const topic = 'ORDERS_CREATE'
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [isLoading, setIsLoading] = useState(true)
-
-  const query =
-    '{ products (first: 25) { edges { node { title variants(first: 20) { edges { node { price } } } } } } }'
-    
-  const { data = {} } = useAppQuery({
-    url: '/api/product/tablePrice',
-    fetchInit: {
+  const handleCreateHook = async () => {
+    setIsLoading(true)
+    fetch('/api/webhooks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Shopify-API-Version': '',
+        'X-Shopify-Shop-Domain': '',
+        'X-Shopify-Hmac-Sha256': '',
+        'X-Shopify-Topic': '',
+        'X-Shopify-Webhook-Id': '',
       },
-      body: JSON.stringify({ query: query }),
-    },
-    reactQueryOptions: {
-      onSuccess: () => {
+      body: JSON.stringify({ topic: topic }),
+    })
+      .then((res) => res.json())
+      .then(({ data }) => {
+        console.log(data.message)
+      })
+      .catch((error) => {
+        alert(error)
+      })
+      .finally(() => {
         setIsLoading(false)
-        console.log('DATA TABLE: ', data)
-      },
-      onError: (error) => {
-        console.log('Error: ', error)
-      },
-    },
-  })
-
-  if (!isLoading) {
-    console.log('Return: ', data)
+      })
   }
 
   return (
     <Page>
-      <ResourcePicker
-        resourceType="Product"
-        open={true}
-        onSelection={handleSelection}
-        initialSelectionIds={[{ id: 'gid://shopify/Product/8434853871914' }]}
-      />
-      <h1 style={{ fontSize: '55px', position: 'relative', left: 0 }}>
-        Page Active
-      </h1>
+      <Button
+        onClick={handleCreateHook}
+        loading={isLoading}
+        disabled={isLoading}
+      >
+        CREATE HOOK
+      </Button>
     </Page>
   )
 }

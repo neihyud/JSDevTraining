@@ -16,6 +16,8 @@ import {
   getCurrencyCode,
 } from './service/product.js'
 
+import { createWebHooks } from './service/webhook.js'
+
 import { ADDRESS_WEBHOOK } from './frontend/constant/constant.js'
 
 const PORT = parseInt(
@@ -164,9 +166,21 @@ app.get('/api/shop/currencyCode', async (req, res) => {
   }
 })
 
-// app.post('/api/webhooks', (req, res) => {
-//   const { topic } = req.body
-// })
+app.post('/api/webhooks', async (req, res) => {
+  const { topic } = req.body
+  const userErrors = await createWebHooks(res.locals.shopify.session, topic)
+
+  if (userErrors.message) {
+    return res.status(400).json({ message: `${userErrors.message}` })
+  }
+
+  return res.status(200).json({ message: 'Create WebHooks success!' })
+})
+
+app.post('/', async (req, res) => {
+  console.log('INFO CUSTOMER ORDER:\n ', req.body.customer)
+  return res.json({ message: 'Webhook received success!' })
+})
 
 app.use(shopify.cspHeaders())
 app.use(serveStatic(STATIC_PATH, { index: false }))
@@ -177,5 +191,7 @@ app.use('/*', shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
     .set('Content-Type', 'text/html')
     .send(readFileSync(join(STATIC_PATH, 'index.html')))
 })
+
+console.log('PORT: ', PORT)
 
 app.listen(PORT, () => `Listening port ${PORT}`)
