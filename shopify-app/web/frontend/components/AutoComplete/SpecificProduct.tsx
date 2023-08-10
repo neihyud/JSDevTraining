@@ -48,11 +48,13 @@ const SpecificProduct = ({ handleFocusSpecificProduct, error }) => {
 }
 
 const SpecificProductsCard = ({ onRemove, selectedOptions }) => {
-  const products = useSelector(
-    (state: RootState) => state.products.allProducts
-  ).filter((product) => {
-    return selectedOptions.includes(product.id)
-  })
+  // const products = useSelector(
+  //   (state: RootState) => state.products.allProducts
+  // ).filter((product) => {
+  //   return selectedOptions.includes(product.id)
+  // })
+
+  const products = useSelector((state) => state.products.specificProducts)
 
   return (
     <LegacyCard>

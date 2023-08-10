@@ -23,25 +23,19 @@ import { RootState } from '../../types'
 import { useAuthenticatedFetch } from '../../hooks'
 import useDebounce from '../../hooks/useDebounce'
 
+import { getProducts, updateProducts } from '../../store/actions/product'
+
 const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
-  const [isLoading, setIsLoading] = useState(false)
-  const [pageInfo, setPageInfo] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
 
-  const [pageInfoSearch, setPageInfoSearch] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
+  const { pageInfo, isLoading, specificProducts, allProducts } = useSelector(
+    (state) => state.products
+  )
 
-  const [productsSearch, setProductsSearch] = useState([])
+  const { endCursor, hasNextPage } = pageInfo
 
-  const [selectedItems, setSelectedItems] = useState<
-    ResourceListProps['selectedItems']
-  >([])
+  const [selectedItems, setSelectedItems] = useState([])
 
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -49,10 +43,12 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
-    dispatch({
-      type: 'UPDATE_SPECIFIC_PRODUCT',
-      payload: [...selectedItems],
-    })
+
+    dispatch(updateProducts({ allProducts, selectedItems, specificProducts }))
+    // dispatch({
+    //   type: 'UPDATE_SPECIFIC_PRODUCT',
+    //   payload: [...selectedItems],
+    // })
   }
 
   const closeModal = () => {
@@ -64,100 +60,28 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     setSearchTerm(value)
   }
 
-  const specificProduct = useSelector(
-    (state: RootState) => state.products.specificProducts
-  )
-
   useEffect(() => {
-    setIsLoading(true)
-    // setProductsSearch([])
-    setPageInfoSearch({ endCursor: '', hasNextPage: false })
+    const params = { fetch, endCursor, hasNextPage, query: debouncedValue }
 
-    if (debouncedValue.trim()) {
-
-      fetch(
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
-          setProductsSearch(() => [...data.products])
-        })
-        .catch((error) => {
-          alert(error)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    } else {
-      // setPageInfoSearch({ endCursor: '', hasNextPage: false })
-      // setProductsSearch([])
-      setIsLoading(false)
-    }
+    dispatch(getProducts(params))
   }, [debouncedValue])
 
-  useEffect(async () => {
-    if (!isLoading) {
-      const res = await fetch('/api/products')
-
-      const { data = {} } = await res.json()
-
-      dispatch({ type: 'GET_PRODUCTS', payload: [...data.products] })
-      setPageInfo(() => ({ ...data.pageInfo }))
-    }
-  }, [])
-
   useEffect(() => {
-    setSelectedItems(specificProduct)
-  }, [specificProduct, isOpen])
+    const selected = specificProducts.map((product) => product.id)
+    setSelectedItems(selected)
+  }, [specificProducts, isOpen])
 
   const handleScrollBottom = () => {
-    // loading: false thi ms xu ly
-    if (!isLoading && pageInfo.hasNextPage && !searchTerm) {
-      console.log('TRUE SCROLL BOTTOM')
+    if (!isLoading && hasNextPage) {
+      const params = {
+        fetch,
+        hasNextPage,
+        endCursor,
+        query: searchTerm,
+        isLazyLoading: true,
+      }
 
-      setIsLoading(true)
-
-      fetch(
-        `/api/products?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfo({ ...pageInfo, ...data.pageInfo })
-          dispatch({ type: 'GET_PRODUCTS', payload: data.products })
-        })
-        .catch((error) => {
-          // handle Error
-          alert(error)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
-
-    if (!isLoading && pageInfoSearch.hasNextPage && searchTerm) {
-      setIsLoading(true)
-      console.log('TRUE SCROLL BOTTOM SEARCH')
-
-      console.log(
-        'Query: ',
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
-      )
-
-      fetch(
-        `/api/products?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
-      )
-        .then((res) => res.json())
-        .then((info) => {
-          const { data = {} } = info
-          console.log('Scroll Data:  ', info)
-          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
-          setProductsSearch([...productsSearch, ...data.products])
-        })
-        .finally(() => {
-          console.log('Finally ...')
-          setIsLoading(false)
-        })
+      dispatch(getProducts(params))
     }
   }
 
@@ -190,9 +114,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
                     <ResourceListProduct
                       selectedItems={selectedItems}
                       setSelectedItems={setSelectedItems}
-                      valueSearch={searchTerm}
-                      productsSearch={productsSearch}
-                      isLoading={isLoading}
                     ></ResourceListProduct>
                   </Scrollable>
                 </div>
@@ -217,21 +138,18 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   )
 }
 
-const ResourceListProduct = ({
-  selectedItems,
-  setSelectedItems,
-  valueSearch,
-  productsSearch,
-  isLoading,
-}) => {
+const ResourceListProduct = ({ selectedItems, setSelectedItems }) => {
   const resourceName = {
     singular: 'product',
     plural: 'products',
   }
 
-  const items = valueSearch
-    ? productsSearch
-    : useSelector((state) => state.products.allProducts)
+  const { allProducts: items, isLoading } = useSelector(
+    (state) => state.products
+  )
+
+  console.log('SelectedItems: ', selectedItems)
+  console.log('All Product: ', items)
 
   return (
     <LegacyCard>

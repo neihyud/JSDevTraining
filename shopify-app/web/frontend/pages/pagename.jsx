@@ -11,11 +11,12 @@ export default function PageName() {
 
   const handleCreateHook = async () => {
     setIsLoading(true)
-    fetch('/api/webhooks', {
+    fetch('/api/webhooks/create', {
       method: 'POST',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-Shopify-Access-Token': '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',
+        // 'X-Shopify-Access-Token': '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',
         // 'X-Shopify-API-Version': '2023-07',
         // 'X-Shopify-Shop-Domain': 'spfy8.myshopify.com',
         // 'X-Shopify-Hmac-Sha256': 'OwNPlf9HyR18zhusUgPbI00pSSdkD8SMXXAW9JXoiMM=',

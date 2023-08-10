@@ -54,16 +54,11 @@ const PricingRulePage = () => {
 
   const [rows, setRows] = useState([])
 
-  // const [pageInfo, setPageInfo] = useState({
-  //   endCursor: '',
-  //   hasNextPage: false,
-  // })
 
   useEffect(() => {
     fetch('/api/shop/currencyCode')
       .then((res) => res.json())
       .then((data) => {
-        console.log('Daa - currencyCode: ', data)
         setCurrencyCode(data.currencyCode)
       })
       .catch((error) => alert(error))

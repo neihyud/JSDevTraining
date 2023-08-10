@@ -22,12 +22,6 @@ export const getDataTable = async (session, query, type) => {
           return { title: edge.node.title, price: price }
         })
         break
-      // case '2':
-      //   data = body.data.products.edges.map((edge, index) => {
-      //     const price = edge.node.variants.edges[0].node.price
-      //     return { title: edge.node.title, price: price }
-      //   })
-      //   break
       case '3':
         const dataTemp = body.data.collections.edges.map((edges) => {
           return edges.node.products.edges.map((edge) => {
@@ -37,12 +31,6 @@ export const getDataTable = async (session, query, type) => {
         })
         data = dataTemp.flat(Infinity)
         break
-      // case '4':
-      //   data = body.data.products.edges.map((edge) => {
-      //     const price = edge.node.variants.edges[0].node.price
-      //     return { title: edge.node.title, price: price }
-      //   })
-      //   break
       default:
         data = []
     }

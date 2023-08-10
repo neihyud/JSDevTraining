@@ -166,7 +166,7 @@ app.get('/api/shop/currencyCode', async (req, res) => {
   }
 })
 
-app.post('/api/webhooks', async (req, res) => {
+app.post('/api/webhooks/create', async (req, res) => {
   const { topic } = req.body
   const userErrors = await createWebHooks(res.locals.shopify.session, topic)
 

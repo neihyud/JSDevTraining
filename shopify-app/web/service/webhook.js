@@ -11,7 +11,7 @@ export const createWebHooks = async (session, topic) => {
       topic: ORDERS_CREATE
       webhookSubscription: {
         format: JSON,
-        callbackUrl: ${ADDRESS_WEBHOOK}}
+        callbackUrl: "${ADDRESS_WEBHOOK}"}
     ) {
       userErrors {
         field
