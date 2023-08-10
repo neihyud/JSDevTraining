@@ -65,6 +65,16 @@ export default {
     },
   },
 
+  ORDERS_CREATE: {
+    deliveryMethod: DeliveryMethod.EventBridge,
+    arn: ""
+    // callbackUrl: "/api/webhooks",
+    // callback: async (topic, shop, body, webhookId) => {
+    //   const payload = JSON.parse(body)
+    //   console.log("orders_create: ", payload)
+    // }
+  },
+
   /**
    * 48 hours after a store owner uninstalls your app, Shopify invokes this
    * webhook.

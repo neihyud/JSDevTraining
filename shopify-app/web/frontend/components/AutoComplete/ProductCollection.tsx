@@ -29,13 +29,15 @@ const ProductCollection = ({ error }) => {
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const debouncedValue = useDebounce(searchTerm, 500)
+  const debouncedValue = useDebounce(searchTerm, 200)
 
   // once call
   const selectedCollection = useSelector(
     (state: RootState) => state.products.productCollection,
     () => true
   )
+
+  let allCollectionTemp = useSelector((state) => state.products.allCollection)
 
   useEffect(async () => {
     if (isLoading) {
@@ -60,7 +62,7 @@ const ProductCollection = ({ error }) => {
   }, [dispatch, selectedOptions])
 
   useEffect(() => {
-    setIsLoading(true)
+    // setIsLoading(true)
     setCollectionsSearch([])
     setPageInfoSearch({ endCursor: '', hasNextPage: false })
 
@@ -81,7 +83,7 @@ const ProductCollection = ({ error }) => {
           setIsLoading(false)
         })
     } else {
-      if (collectionsSearch.length != 0) setIsLoading(false)
+      if (allCollectionTemp.length != 0) setIsLoading(false)
     }
   }, [debouncedValue])
 
@@ -140,6 +142,7 @@ const ProductCollection = ({ error }) => {
   const updateText = (value) => {
     console.log('Value Search: ', value)
     setSearchTerm(value)
+    setIsLoading(true)
   }
 
   const textField = (
@@ -167,8 +170,6 @@ const ProductCollection = ({ error }) => {
       label: `${product.title}`,
     }))
   }
-
-  let allCollectionTemp = useSelector((state) => state.products.allCollection)
 
   const collections = searchTerm
     ? getOptions(collectionsSearch)

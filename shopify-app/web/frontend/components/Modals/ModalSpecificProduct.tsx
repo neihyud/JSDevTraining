@@ -70,7 +70,7 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   useEffect(() => {
     setIsLoading(true)
-    setProductsSearch([])
+    // setProductsSearch([])
     setPageInfoSearch({ endCursor: '', hasNextPage: false })
 
     if (debouncedValue.trim()) {

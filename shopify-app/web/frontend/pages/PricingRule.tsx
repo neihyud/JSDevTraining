@@ -54,10 +54,10 @@ const PricingRulePage = () => {
 
   const [rows, setRows] = useState([])
 
-  const [pageInfo, setPageInfo] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
+  // const [pageInfo, setPageInfo] = useState({
+  //   endCursor: '',
+  //   hasNextPage: false,
+  // })
 
   useEffect(() => {
     fetch('/api/shop/currencyCode')
@@ -329,12 +329,13 @@ const PricingRulePage = () => {
           })
           .join(' OR ')
 
+          // ${
+          //   pageInfo.hasNextPage == 'true'
+          //     ? `, after:"${pageInfo.endCursor}"`
+          //     : ''
+          // }
         query = `{
-            products (first: 25, query:"${subQuery}" ${
-          pageInfo.hasNextPage == 'true'
-            ? `, after:"${pageInfo.endCursor}"`
-            : ''
-        }) {
+            products (first: 25, query:"${subQuery}" ) {
               edges {
                 node {
                   title
@@ -363,9 +364,7 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-            collections (first:5, query:"${subQuery}" ${
-          hasNextPage == 'true' ? `, after:"${endCursor}"` : ''
-        }) {
+            collections (first:5, query:"${subQuery}") {
               edges {
                 node {
                   products(first:20) {
@@ -399,11 +398,7 @@ const PricingRulePage = () => {
           .join(' OR ')
 
         query = `{
-          products(first: 25, query:"${subQuery}" ${
-          pageInfo.hasNextPage == 'true'
-            ? `, after:"${pageInfo.endCursor}"`
-            : ''
-        }) {
+          products(first: 25, query:"${subQuery}") {
             edges {
               node {
                 title

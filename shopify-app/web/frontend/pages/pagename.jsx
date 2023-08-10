@@ -15,11 +15,12 @@ export default function PageName() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Shopify-API-Version': '',
-        'X-Shopify-Shop-Domain': '',
-        'X-Shopify-Hmac-Sha256': '',
-        'X-Shopify-Topic': '',
-        'X-Shopify-Webhook-Id': '',
+        'X-Shopify-Access-Token': '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',
+        // 'X-Shopify-API-Version': '2023-07',
+        // 'X-Shopify-Shop-Domain': 'spfy8.myshopify.com',
+        // 'X-Shopify-Hmac-Sha256': 'OwNPlf9HyR18zhusUgPbI00pSSdkD8SMXXAW9JXoiMM=',
+        // 'X-Shopify-Topic': 'orders/create',
+        // 'X-Shopify-Webhook-Id': '3f0689ae-eae5-42b3-a9b1-13287bba4739',
       },
       body: JSON.stringify({ topic: topic }),
     })
