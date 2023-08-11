@@ -1,4 +1,4 @@
-import { DeliveryMethod } from "@shopify/shopify-api";
+import { DeliveryMethod } from '@shopify/shopify-api'
 
 /**
  * @type {{[key: string]: import("@shopify/shopify-api").WebhookHandler}}
@@ -12,9 +12,9 @@ export default {
    */
   CUSTOMERS_DATA_REQUEST: {
     deliveryMethod: DeliveryMethod.Http,
-    callbackUrl: "/api/webhooks",
+    callbackUrl: '/api/webhooks',
     callback: async (topic, shop, body, webhookId) => {
-      const payload = JSON.parse(body);
+      const payload = JSON.parse(body)
       // Payload has the following shape:
       // {
       //   "shop_id": 954889,
@@ -44,9 +44,9 @@ export default {
    */
   CUSTOMERS_REDACT: {
     deliveryMethod: DeliveryMethod.Http,
-    callbackUrl: "/api/webhooks",
+    callbackUrl: '/api/webhooks',
     callback: async (topic, shop, body, webhookId) => {
-      const payload = JSON.parse(body);
+      const payload = JSON.parse(body)
       // Payload has the following shape:
       // {
       //   "shop_id": 954889,
@@ -66,13 +66,51 @@ export default {
   },
 
   ORDERS_CREATE: {
-    deliveryMethod: DeliveryMethod.EventBridge,
-    arn: ""
-    // callbackUrl: "/api/webhooks",
-    // callback: async (topic, shop, body, webhookId) => {
-    //   const payload = JSON.parse(body)
-    //   console.log("orders_create: ", payload)
-    // }
+    deliveryMethod: DeliveryMethod.Http,
+    callbackUrl: '/api/webhooks',
+    callback: async (topic, shop, body, webhookId) => {
+      const payload = JSON.parse(body)
+      console.log("ORDERS_CREATE: ", payload)
+      // Payload has the following shape:
+      // {
+      //   "shop_id": 954889,
+      //   "shop_domain": "{shop}.myshopify.com",
+      //   "customer": {
+      //     "id": 191167,
+      //     "email": "john@example.com",
+      //     "phone": "555-625-1199"
+      //   },
+      //   "orders_to_redact": [
+      //     299938,
+      //     280263,
+      //     220458
+      //   ]
+      // }
+    },
+  },
+
+  CUSTOMERS_CREATE: {
+    deliveryMethod: DeliveryMethod.Http,
+    callbackUrl: '/api/webhooks',
+    callback: async (topic, shop, body, webhookId) => {
+      const payload = JSON.parse(body)
+      console.log("CUSTOMERS_CREATE", payload)
+      // Payload has the following shape:
+      // {
+      //   "shop_id": 954889,
+      //   "shop_domain": "{shop}.myshopify.com",
+      //   "customer": {
+      //     "id": 191167,
+      //     "email": "john@example.com",
+      //     "phone": "555-625-1199"
+      //   },
+      //   "orders_to_redact": [
+      //     299938,
+      //     280263,
+      //     220458
+      //   ]
+      // }
+    },
   },
 
   /**
@@ -83,9 +121,9 @@ export default {
    */
   SHOP_REDACT: {
     deliveryMethod: DeliveryMethod.Http,
-    callbackUrl: "/api/webhooks",
+    callbackUrl: '/api/webhooks',
     callback: async (topic, shop, body, webhookId) => {
-      const payload = JSON.parse(body);
+      const payload = JSON.parse(body)
       // Payload has the following shape:
       // {
       //   "shop_id": 954889,
@@ -93,4 +131,4 @@ export default {
       // }
     },
   },
-};
+}

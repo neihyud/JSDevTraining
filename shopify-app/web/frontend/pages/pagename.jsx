@@ -9,25 +9,19 @@ export default function PageName() {
   const topic = 'ORDERS_CREATE'
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleCreateHook = async () => {
+  const handleCreateHook = async (topic) => {
     setIsLoading(true)
     fetch('/api/webhooks/create', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        // 'X-Shopify-Access-Token': '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',
-        // 'X-Shopify-API-Version': '2023-07',
-        // 'X-Shopify-Shop-Domain': 'spfy8.myshopify.com',
-        // 'X-Shopify-Hmac-Sha256': 'OwNPlf9HyR18zhusUgPbI00pSSdkD8SMXXAW9JXoiMM=',
-        // 'X-Shopify-Topic': 'orders/create',
-        // 'X-Shopify-Webhook-Id': '3f0689ae-eae5-42b3-a9b1-13287bba4739',
       },
       body: JSON.stringify({ topic: topic }),
     })
       .then((res) => res.json())
-      .then(({ data }) => {
-        console.log(data.message)
+      .then((data) => {
+        console.log(data)
       })
       .catch((error) => {
         alert(error)
@@ -40,11 +34,19 @@ export default function PageName() {
   return (
     <Page>
       <Button
-        onClick={handleCreateHook}
+        onClick={() => handleCreateHook('ORDERS_CREATE')}
         loading={isLoading}
         disabled={isLoading}
       >
-        CREATE HOOK
+        CREATE HOOK ORDERS_CREATE
+      </Button>
+
+      <Button
+        onClick={() => handleCreateHook('CUSTOMERS_CREATE')}
+        loading={isLoading}
+        disabled={isLoading}
+      >
+        CREATE HOOK CUSTOMERS_CREATE
       </Button>
     </Page>
   )

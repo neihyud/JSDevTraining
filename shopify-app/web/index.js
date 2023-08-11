@@ -146,9 +146,6 @@ app.get('/api/collections', async (req, res) => {
       q
     )
 
-    console.log('GET COLLECTIONS')
-
-    console.log('{ DATA COLLECTION }: ', { data })
     return res.status(200).json({ data })
   } catch (error) {
     console.log('Error: ', error)
@@ -170,17 +167,18 @@ app.post('/api/webhooks/create', async (req, res) => {
   const { topic } = req.body
   const userErrors = await createWebHooks(res.locals.shopify.session, topic)
 
-  if (userErrors.message) {
-    return res.status(400).json({ message: `${userErrors.message}` })
+  console.log('useErrors: ', userErrors)
+  if (userErrors.length) {
+    return res.status(400).json({ message: `${userErrors[0].message}` })
   }
 
   return res.status(200).json({ message: 'Create WebHooks success!' })
 })
 
-app.post('/', async (req, res) => {
-  console.log('INFO CUSTOMER ORDER:\n ', req.body.customer)
-  return res.json({ message: 'Webhook received success!' })
-})
+// app.post('/', async (req, res) => {
+//   console.log('INFO CUSTOMER ORDER:\n ', req.body.customer)
+//   return res.json({ message: 'GET_DATA' })
+// })
 
 app.use(shopify.cspHeaders())
 app.use(serveStatic(STATIC_PATH, { index: false }))

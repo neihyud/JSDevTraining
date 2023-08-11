@@ -8,7 +8,7 @@ export const createWebHooks = async (session, topic) => {
   const query = `
   mutation {
     webhookSubscriptionCreate(
-      topic: ORDERS_CREATE
+      topic: ${topic}
       webhookSubscription: {
         format: JSON,
         callbackUrl: "${ADDRESS_WEBHOOK}"}
@@ -23,15 +23,11 @@ export const createWebHooks = async (session, topic) => {
     }
   }`
 
-  console.log('Query: ', query)
-
   const { body = {} } = await client.query({
     data: {
       query: query,
     },
   })
-
-  console.log('UserError: ', body.data.webhookSubscriptionCreate.userErrors)
 
   return body.data.webhookSubscriptionCreate.userErrors
 }

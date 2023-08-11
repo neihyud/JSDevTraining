@@ -2,18 +2,19 @@
 
 name = "spfyApp"
 client_id = "21e70e1c0db438b03bf85dafbc7b9e85"
-application_url = "https://journalist-drainage-ownership-informational.trycloudflare.com"
+application_url = "https://mega-hwy-exhibition-current.trycloudflare.com"
 embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+scopes = "write_products,read_orders,write_customers"
+use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
-  "https://journalist-drainage-ownership-informational.trycloudflare.com/auth/callback",
-  "https://journalist-drainage-ownership-informational.trycloudflare.com/auth/shopify/callback",
-  "https://journalist-drainage-ownership-informational.trycloudflare.com/api/auth/callback"
+  "https://mega-hwy-exhibition-current.trycloudflare.com/auth/callback",
+  "https://mega-hwy-exhibition-current.trycloudflare.com/auth/shopify/callback",
+  "https://mega-hwy-exhibition-current.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
