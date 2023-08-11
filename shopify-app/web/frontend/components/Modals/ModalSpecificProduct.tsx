@@ -54,20 +54,23 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
     dispatch(updateProducts({ productTemp }))
-    // dispatch({ type: 'RESET_STATE_PRODUCT' })
+    dispatch({ type: 'RESET_STATE_PRODUCT' })
+    setSearchTerm('')
   }
 
   const closeModal = () => {
     openModal((isOpen) => !isOpen)
     // setSelectedItems([])
     console.log('UNMOUNT ...')
-    // dispatch({ type: 'RESET_STATE_PRODUCT' })
+    setSearchTerm('')
+    dispatch({ type: 'RESET_STATE_PRODUCT' })
   }
 
   const handleTextFieldChange = (value) => {
     setSearchTerm(value)
   }
 
+  const [isMount, setIsMount] = useState(false)
   useEffect(() => {
     const selected = specificProducts.map((product) => product.id)
 
@@ -76,15 +79,19 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     console.log('selected: ', selected)
     setSelectedItems(selected)
     // dispatch({ type: 'RESET_STATE_PRODUCT' })
+    setIsMount(true)
   }, [isOpen])
 
   useEffect(() => {
     const params = { fetch, endCursor, hasNextPage, query: debouncedValue }
-console.log("dEB")
+
     dispatch(getProducts(params))
   }, [debouncedValue])
 
   useEffect(() => {
+    if (!isMount) {
+      return
+    }
     handleSelectedItem()
   }, [selectedItems])
 
