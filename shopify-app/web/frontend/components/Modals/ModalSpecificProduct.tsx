@@ -15,27 +15,21 @@ import {
   Spinner,
 } from '@shopify/polaris'
 import { SearchMajor } from '@shopify/polaris-icons'
-import type { ResourceListProps } from '@shopify/polaris'
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../../types'
 import { useAuthenticatedFetch } from '../../hooks'
 import useDebounce from '../../hooks/useDebounce'
 
 import {
   getProducts,
-  handleSelected,
   updateProducts,
+  resetStateProduct,
 } from '../../store/actions/product'
 
 const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
-
-  useEffect(() => {
-    console.log('MOUNT ...')
-  }, [])
 
   const { pageInfo, isLoading, specificProducts, allProducts } = useSelector(
     (state) => state.products
@@ -51,35 +45,34 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const [productTemp, setProductTemp] = useState([])
 
+  const [isMount, setIsMount] = useState(false)
+
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
     dispatch(updateProducts({ productTemp }))
     if (searchTerm) {
-      dispatch({ type: 'RESET_STATE_PRODUCT' })
+      dispatch(resetStateProduct())
       setSearchTerm('')
     }
   }
 
   const closeModal = () => {
     openModal((isOpen) => !isOpen)
-    // setSelectedItems([])
-    console.log('UNMOUNT ...')
     setSearchTerm('')
-    dispatch({ type: 'RESET_STATE_PRODUCT' })
+    dispatch(resetStateProduct())
   }
 
   const handleTextFieldChange = (value) => {
     setSearchTerm(value)
-    dispatch({ type: 'RESET_STATE_PRODUCT' })
+    dispatch(resetStateProduct())
   }
 
   useEffect(() => {
-    const selected = specificProducts.map((product) => product.id)
+    // if (!isOpen) { 
+      const selected = specificProducts.map((product) => product.id)
 
-    console.log('specificProducts: ', specificProducts)
-    console.log('productTemp: ', productTemp)
-    console.log('selected: ', selected)
-    setSelectedItems(selected)
+      setSelectedItems(selected)
+    // }
   }, [isOpen])
 
   useEffect(() => {
@@ -99,7 +92,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const handleSelectedItem = () => {
     let data = []
-    console.log('ProductTemp handle: ', productTemp)
 
     if (selectedItems.length > productTemp.length) {
       const selectedTemp = selectedItems.map((id) => {
@@ -108,9 +100,7 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
           return product
         }
 
-        console.log('Product Temp: ', productTemp)
         return productTemp.find((product) => {
-          console.log('Product: ', product)
           return product.id == id
         })
       })

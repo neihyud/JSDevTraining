@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import {
   AppProvider as PolarisAppProvider,
   Page,
@@ -32,7 +32,7 @@ import ModalSpecificProduct from '../components/Modals/ModalSpecificProduct'
 
 const PricingRulePage = () => {
   const fetch = useAuthenticatedFetch()
-
+  const dispatch = useDispatch()
   const [error, setError] = useState<IErrorForm>({
     storeName: '',
     priority: '',
@@ -100,10 +100,11 @@ const PricingRulePage = () => {
 
   const [selectedProduct, setSelectedProduct] = useState(['1'])
 
-  const handleSelectChangeProduct = useCallback(
-    (value) => setSelectedProduct(value),
-    []
-  )
+  const handleSelectChangeProduct = (value) => {
+    // dispatch({ type: 'RESET_STATE_PRODUCT' })
+    if (selectedProduct[0] != '2') setIsOpenModal(false)
+    setSelectedProduct(value)
+  }
 
   // Custom Prices
   const [selectedPrice, setSelectedPrice] = useState(['1'])
@@ -157,7 +158,7 @@ const PricingRulePage = () => {
   let lenSpecificProduct = specificsProducts.length
 
   const collectionProduct = useSelector(
-    (state: RootState) => state.products.productCollection
+    (state: RootState) => state.collections.productCollection
   )
   let letCollectionProduct = collectionProduct.length
 

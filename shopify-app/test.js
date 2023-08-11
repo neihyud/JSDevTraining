@@ -1,4 +1,4 @@
-const fetchProducts = async ({ query, endCursor, hasNextPage }) => {
+const fetchData = async ({ query, endCursor, hasNextPage }) => {
   let subQuery = []
 
   if (endCursor) {
@@ -15,12 +15,11 @@ const fetchProducts = async ({ query, endCursor, hasNextPage }) => {
 
   if (subQuery.length) {
   }
-  
+
   subQuery = subQuery.join('&')
 
   const api = `/api/products/api/products?${subQuery} `
   console.log(api)
 }
 
-
-fetchProducts({query: '', endCursor: '', hasNextPage: ''})
+fetchData({ query: '', endCursor: '', hasNextPage: '' })

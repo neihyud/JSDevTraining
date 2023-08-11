@@ -6,9 +6,9 @@ const initState = {
     endCursor: '',
     hasNextPage: false,
   },
-  productCollection: [],
+  // productCollection: [],
   productTags: [],
-  allCollection: [],
+  // allCollection: [],
   allTags: [],
 }
 
@@ -50,7 +50,6 @@ const productReducer = (state = initState, action) => {
     case 'RESET_STATE_PRODUCT':
       return {
         ...state,
-        // allProducts: [],
         pageInfo: {
           endCursor: '',
           hasNextPage: false,
@@ -62,44 +61,60 @@ const productReducer = (state = initState, action) => {
         ...state,
         isLoading: true,
       }
+
     case 'SET_PRODUCT_EMPTY':
       return {
         ...state,
         allProducts: [],
       }
+    // ============= COLLECTION ================
+    // case 'SET_COLLECTION_EMPTY':
+    //   return {
+    //     ...state,
+    //     allCollection: [],
+    //   }
 
-    case 'GET_PRODUCTS':
-      console.log('Action Payload: ', action.payload)
-      return {
-        ...state,
-        allProducts: [...state.allProducts, ...action.payload],
-      }
+    // case 'ADD_COLLECTION':
+    //   return {
+    //     ...state,
+    //     allCollection: [...action.payload.collections],
+    //     pageInfo: { ...action.payload.pageInfo },
+    //     isLoading: false,
+    //   }
 
-    case 'GET_COLLECTIONS':
-      return {
-        ...state,
-        allCollection: [...state.allCollection, ...action.payload],
-      }
+    // case 'PUSH_COLLECTION':
+    //   return {
+    //     ...state,
+    //     allCollection: [...state.allProducts, ...action.payload.collections],
+    //     pageInfo: { ...action.payload.pageInfo },
+    //     isLoading: false,
+    //   }
+    // case 'GET_COLLECTIONS':
+    //   return {
+    //     ...state,
+    //     allCollection: [...state.allCollection, ...action.payload],
+    //   }
     case 'GET_TAGS':
       return {
         ...state,
         allTags: [...state.allTags, ...action.payload],
       }
 
-    case 'UPDATE_PRODUCT_COLLECTION':
-      return {
-        ...state,
-        productCollection: [...action.payload],
-      }
-      break
-    case 'REMOVE_PRODUCT_COLLECTION':
-      return {
-        ...state,
-        productCollection: state.productCollection.filter((product) => {
-          return action.payload != product.id
-        }),
-      }
-      break
+    // case 'UPDATE_PRODUCT_COLLECTION':
+    //   console.log("UPDATE_PRODUCT_COLLECTION: ", action.payload)
+    //   return {
+    //     ...state,
+    //     productCollection: [...action.payload],
+    //   }
+    //   break
+    // case 'REMOVE_PRODUCT_COLLECTION':
+    //   return {
+    //     ...state,
+    //     productCollection: state.productCollection.filter((product) => {
+    //       return action.payload != product.id
+    //     }),
+    //   }
+    //   break
     case 'UPDATE_PRODUCT_TAG':
       return {
         ...state,

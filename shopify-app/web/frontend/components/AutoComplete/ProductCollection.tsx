@@ -6,90 +6,81 @@ import type { RootState } from '../../types/index'
 import { useDispatch, useSelector } from 'react-redux'
 import ResourceListProduct from '../Common/ResourceListProduct'
 import { useAuthenticatedFetch } from '../../hooks'
-import useDebounce from '../../hooks/useDebounce'
+import {
+  getCollections,
+  resetStateProduct,
+  updateCollection,
+} from '../../store/actions/product'
 
 const ProductCollection = ({ error }) => {
   const fetch = useAuthenticatedFetch()
   const dispatch = useDispatch()
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [pageInfo, setPageInfo] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
+  const { pageInfo, isLoading, productCollection, allCollection } = useSelector(
+    (state) => state.collections
+  )
 
-  const [pageInfoSearch, setPageInfoSearch] = useState({
-    endCursor: '',
-    hasNextPage: false,
-  })
-
-  const [collectionsSearch, setCollectionsSearch] = useState([])
-
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const { endCursor, hasNextPage } = pageInfo
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const debouncedValue = useDebounce(searchTerm, 200)
+  const [selectedOptions, setSelectedOptions] = useState([])
 
-  // once call
-  const selectedCollection = useSelector(
-    (state: RootState) => state.products.productCollection,
-    () => true
-  )
-
-  let allCollectionTemp = useSelector((state) => state.products.allCollection)
-
-  useEffect(async () => {
-    if (isLoading) {
-      const res = await fetch('/api/collections')
-      const { data = {} } = await res.json()
-
-      setIsLoading(false)
-      dispatch({ type: 'GET_COLLECTIONS', payload: data.collections })
-      setPageInfo(() => ({ ...data.pageInfo }))
-    }
+  const [isMount, setIsMount] = useState(false)
+  useEffect(() => {
+    const selected = productCollection.map((collection) => collection.id)
+    console.log('Mount ... ')
+    setSelectedOptions(selected)
+    setIsMount(true)
   }, [])
 
-  useEffect(() => {
-    setSelectedOptions(selectedCollection)
-  }, [selectedCollection])
+  console.log('selectedOptions: ', selectedOptions)
 
   useEffect(() => {
-    dispatch({
-      type: 'UPDATE_PRODUCT_COLLECTION',
-      payload: [...selectedOptions],
-    })
-  }, [dispatch, selectedOptions])
-
-  useEffect(() => {
-    // setIsLoading(true)
-    setCollectionsSearch([])
-    setPageInfoSearch({ endCursor: '', hasNextPage: false })
-
-    console.log('Debounced Value: ', debouncedValue)
-    if (debouncedValue.trim()) {
-      fetch(
-        `/api/collections/?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${debouncedValue}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
-          setCollectionsSearch([...data.collections])
-        })
-        .catch((error) => {
-          alert(error)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    } else {
-      if (allCollectionTemp.length != 0) setIsLoading(false)
+    const params = {
+      fetch,
+      hasNextPage,
+      endCursor,
+      query: searchTerm,
+      type: 'collection',
     }
-  }, [debouncedValue])
 
-  let willLoadMoreResults = searchTerm
-    ? pageInfoSearch.hasNextPage
-    : pageInfo.hasNextPage
+    localStorage.setItem('searchTerm', searchTerm)
+    dispatch(getCollections(params))
+  }, [searchTerm])
+
+  useEffect(() => {
+    if (isMount) {
+      handleSelectedOptions()
+    }
+  }, [selectedOptions])
+
+  const handleSelectedOptions = () => {
+    let data = []
+
+    console.log('ProductCollection: ', productCollection)
+    if (selectedOptions.length > productCollection.length) {
+      const selectedTemp = selectedOptions.map((id) => {
+        const collection = allCollection.find(
+          (collection) => collection.id == id
+        )
+        if (collection) {
+          return collection
+        }
+
+        return productCollection.find((collection) => collection.id == id)
+      })
+
+      data.push(...selectedTemp)
+    } else {
+      data = productCollection.filter((collection) => {
+        return selectedOptions.includes(collection.id)
+      })
+    }
+    dispatch(updateCollection({ collectionTemp: [...data] }))
+
+    // setCollectionTemp(() => [...data])
+  }
 
   const removeTag = (tag: string) => () => {
     const options = [...selectedOptions]
@@ -98,51 +89,22 @@ const ProductCollection = ({ error }) => {
   }
 
   const handleLoadMoreResults = () => {
-    console.log('Loading more result ... ')
-    if (willLoadMoreResults && !isLoading && !searchTerm) {
-      setIsLoading(true)
-
-      fetch(
-        `/api/collections?endCursor=${pageInfo.endCursor}&hasNextPage=${pageInfo.hasNextPage}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfo({ ...pageInfo, ...data.pageInfo })
-
-          dispatch({ type: 'GET_COLLECTIONS', payload: data.collections })
-        })
-        .catch(() => {
-          alert(error)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
-
-    if (willLoadMoreResults && !isLoading && searchTerm) {
-      setIsLoading(true)
-
-      fetch(
-        `/api/collections?endCursor=${pageInfoSearch.endCursor}&hasNextPage=${pageInfoSearch.hasNextPage}&q=${searchTerm}`
-      )
-        .then((res) => res.json())
-        .then(({ data }) => {
-          setPageInfoSearch({ ...pageInfoSearch, ...data.pageInfo })
-          setCollectionsSearch([...collectionsSearch, ...data.collections])
-        })
-        .catch(() => {
-          alert(error)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
+    if (!isLoading && hasNextPage) {
+      const params = {
+        fetch,
+        hasNextPage,
+        endCursor,
+        query: searchTerm,
+        isLazyLoading: true,
+        type: 'collection',
+      }
+      dispatch(getCollections(params))
     }
   }
 
   const updateText = (value) => {
-    console.log('Value Search: ', value)
     setSearchTerm(value)
-    setIsLoading(true)
+    dispatch(resetStateProduct())
   }
 
   const textField = (
@@ -161,6 +123,7 @@ const ProductCollection = ({ error }) => {
     <ProductCollectionsCard
       onRemove={removeTag}
       selectedOptions={selectedOptions}
+      products={productCollection}
     />
   ) : null
 
@@ -171,9 +134,7 @@ const ProductCollection = ({ error }) => {
     }))
   }
 
-  const collections = searchTerm
-    ? getOptions(collectionsSearch)
-    : getOptions(allCollectionTemp)
+  const collections = getOptions(allCollection)
 
   const selectedTagMarkup = hasSelectedOptions ? tagsMarkup : null
 
@@ -188,7 +149,7 @@ const ProductCollection = ({ error }) => {
         listTitle="SUGGESTED COLLECTIONS"
         loading={isLoading}
         onLoadMoreResults={handleLoadMoreResults}
-        willLoadMoreResults={willLoadMoreResults}
+        willLoadMoreResults={hasNextPage}
         preferredPosition={'below'}
         emptyState={
           <div
@@ -213,15 +174,21 @@ const ProductCollection = ({ error }) => {
   )
 }
 
-const ProductCollectionsCard = ({ onRemove, selectedOptions }) => {
-  const products = useSelector(
-    (state: RootState) => state.products.allCollection
-  ).filter((product) => {
-    return selectedOptions.includes(product.id)
-  })
+const ProductCollectionsCard = ({ onRemove, products }) => {
+  // const products = useSelector(
+  //   (state: RootState) => state.products.allCollection
+  // ).filter((product) => {
+  //   return selectedOptions.includes(product.id)
+  // })
 
   // console.log('Products: ', products)
-  return <ResourceListProduct products={products} onRemove={onRemove} />
+  console.log('Product: ', products)
+  return (
+    <ResourceListProduct
+      products={products ? products : []}
+      onRemove={onRemove}
+    />
+  )
 }
 
 export default ProductCollection

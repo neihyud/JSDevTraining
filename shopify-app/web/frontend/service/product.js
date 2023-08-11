@@ -6,8 +6,8 @@
  * @param {useAuthenticateFetch} params.fetch
  * @returns {object}
  */
-export const fetchProducts = async (params) => {
-  const { fetch, query, endCursor, hasNextPage } = params
+export const fetchData = async (params) => {
+  const { fetch, query, endCursor, hasNextPage, type = '' } = params
 
   let subQuery = []
 
@@ -23,11 +23,20 @@ export const fetchProducts = async (params) => {
     subQuery.push(`q=${query}`)
   }
 
+
   subQuery = subQuery.join('&')
 
-  const res = await fetch(`/api/products?${subQuery}`)
+  let subHef = ''
+  switch (type) {
+    case 'collection':
+      subHef = '/api/collections?'
+      break
+    default:
+      subHef = '/api/products?'
+  }
+
+  const res = await fetch(`${subHef}${subQuery}`)
 
   const { data = {} } = await res.json()
   return { ...data, query }
 }
-
