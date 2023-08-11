@@ -54,8 +54,10 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
     dispatch(updateProducts({ productTemp }))
-    dispatch({ type: 'RESET_STATE_PRODUCT' })
-    setSearchTerm('')
+    if (searchTerm) {
+      dispatch({ type: 'RESET_STATE_PRODUCT' })
+      setSearchTerm('')
+    }
   }
 
   const closeModal = () => {
@@ -68,9 +70,9 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const handleTextFieldChange = (value) => {
     setSearchTerm(value)
+    dispatch({ type: 'RESET_STATE_PRODUCT' })
   }
 
-  const [isMount, setIsMount] = useState(false)
   useEffect(() => {
     const selected = specificProducts.map((product) => product.id)
 
@@ -78,20 +80,20 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     console.log('productTemp: ', productTemp)
     console.log('selected: ', selected)
     setSelectedItems(selected)
-    // dispatch({ type: 'RESET_STATE_PRODUCT' })
-    setIsMount(true)
   }, [isOpen])
 
   useEffect(() => {
-    const params = { fetch, endCursor, hasNextPage, query: debouncedValue }
-
+    const params = {
+      fetch,
+      endCursor,
+      hasNextPage,
+      query: searchTerm,
+    }
+    localStorage.setItem('searchTerm', searchTerm)
     dispatch(getProducts(params))
-  }, [debouncedValue])
+  }, [searchTerm])
 
   useEffect(() => {
-    if (!isMount) {
-      return
-    }
     handleSelectedItem()
   }, [selectedItems])
 
@@ -100,11 +102,7 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
     console.log('ProductTemp handle: ', productTemp)
 
     if (selectedItems.length > productTemp.length) {
-      // const id = selectedItems[selectedItems.length - 1]
-      // const product = allProducts.find((product) => product.id == id)
-
       const selectedTemp = selectedItems.map((id) => {
-        // if ()
         const product = allProducts.find((product) => product.id == id)
         if (product) {
           return product
@@ -117,8 +115,6 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
         })
       })
 
-      // data = [...productTemp, { ...product }]
-      console.log('productTemp selected: ', selectedTemp)
       data.push(...selectedTemp)
     } else {
       data = productTemp.filter((product) => {

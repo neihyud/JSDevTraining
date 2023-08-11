@@ -1,11 +1,5 @@
 import { fetchProducts } from '../../service/product'
 
-const loading = () => {
-  return {
-    type: 'LOADING',
-  }
-}
-
 /**
  *
  * @param {object} params
@@ -29,7 +23,12 @@ export const getProducts = (params) => {
 
       if (isLazyLoading) {
         dispatch({ type: 'PUSH_PRODUCTS', payload: data })
-      } else {
+        return
+      }
+ 
+      const termSearch = localStorage.getItem('searchTerm')
+
+      if (data.query === termSearch) {
         dispatch({ type: 'ADD_PRODUCTS', payload: data })
       }
     } catch (error) {
@@ -39,37 +38,8 @@ export const getProducts = (params) => {
 }
 
 export const updateProducts = ({ productTemp }) => {
-
   return {
     type: 'UPDATE_SPECIFIC_PRODUCT',
     payload: productTemp,
-  }
-}
-
-export const handleSelected = ({
-  specificProducts,
-  selectedItems,
-  allProducts,
-}) => {
-  let data = []
-  if (selectedItems.length > specificProducts.length) {
-    const id = selectedItems[selectedItems.length - 1]
-    const product = allProducts.find((product) => product.id == id)
-    specificProducts.push(product)
-
-    data = specificProducts
-    console.log('Data 1', data)
-  } else {
-    console.log('product specific: ', specificProducts)
-    data = specificProducts.filter((product) => {
-      return selectedItems.includes(product.id)
-    })
-
-    console.log('Data 2 : ', data)
-  }
-
-  return {
-    type: 'UPDATE_SPECIFIC_PRODUCT',
-    payload: data,
   }
 }

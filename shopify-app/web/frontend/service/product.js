@@ -28,10 +28,6 @@ export const fetchProducts = async (params) => {
   const res = await fetch(`/api/products?${subQuery}`)
 
   const { data = {} } = await res.json()
-  return data
+  return { ...data, query }
 }
 
-
-export const handleSelected = ({selected}) => {
-  
-}
