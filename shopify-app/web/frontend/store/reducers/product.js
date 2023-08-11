@@ -15,16 +15,17 @@ const initState = {
 const productReducer = (state = initState, action) => {
   switch (action.type) {
     case 'UPDATE_SPECIFIC_PRODUCT':
+      console.log('Action: ', action.payload)
       return {
         ...state,
-        specificProducts: [...state.specificProducts, ...action.payload],
+        specificProducts: [...action.payload],
         isLoading: false,
       }
     case 'REMOVE_SPECIFIC_PRODUCT':
       return {
         ...state,
-        specificProducts: state.specificProducts.filter((id) => {
-          return action.payload != id
+        specificProducts: state.specificProducts.filter((product) => {
+          return action.payload != product.id
         }),
         isLoading: false,
       }
@@ -44,6 +45,16 @@ const productReducer = (state = initState, action) => {
         allProducts: [...action.payload.products],
         pageInfo: { ...action.payload.pageInfo },
         isLoading: false,
+      }
+
+    case 'RESET_STATE_PRODUCT':
+      return {
+        ...state,
+        // allProducts: [],
+        pageInfo: {
+          endCursor: '',
+          hasNextPage: false,
+        },
       }
 
     case 'LOADING':

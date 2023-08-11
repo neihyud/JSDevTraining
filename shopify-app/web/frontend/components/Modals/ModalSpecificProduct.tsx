@@ -23,11 +23,19 @@ import { RootState } from '../../types'
 import { useAuthenticatedFetch } from '../../hooks'
 import useDebounce from '../../hooks/useDebounce'
 
-import { getProducts, updateProducts } from '../../store/actions/product'
+import {
+  getProducts,
+  handleSelected,
+  updateProducts,
+} from '../../store/actions/product'
 
 const ModalSpecificProduct = ({ openModal, isOpen }) => {
   const dispatch = useDispatch()
   const fetch = useAuthenticatedFetch()
+
+  useEffect(() => {
+    console.log('MOUNT ...')
+  }, [])
 
   const { pageInfo, isLoading, specificProducts, allProducts } = useSelector(
     (state) => state.products
@@ -41,19 +49,19 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
 
   const debouncedValue = useDebounce(searchTerm, 500)
 
+  const [productTemp, setProductTemp] = useState([])
+
   const saveModal = () => {
     openModal((isOpen) => !isOpen)
-
-    dispatch(updateProducts({ allProducts, selectedItems, specificProducts }))
-    // dispatch({
-    //   type: 'UPDATE_SPECIFIC_PRODUCT',
-    //   payload: [...selectedItems],
-    // })
+    dispatch(updateProducts({ productTemp }))
+    // dispatch({ type: 'RESET_STATE_PRODUCT' })
   }
 
   const closeModal = () => {
     openModal((isOpen) => !isOpen)
-    setSelectedItems([])
+    // setSelectedItems([])
+    console.log('UNMOUNT ...')
+    // dispatch({ type: 'RESET_STATE_PRODUCT' })
   }
 
   const handleTextFieldChange = (value) => {
@@ -61,15 +69,58 @@ const ModalSpecificProduct = ({ openModal, isOpen }) => {
   }
 
   useEffect(() => {
-    const params = { fetch, endCursor, hasNextPage, query: debouncedValue }
+    const selected = specificProducts.map((product) => product.id)
 
+    console.log('specificProducts: ', specificProducts)
+    console.log('productTemp: ', productTemp)
+    console.log('selected: ', selected)
+    setSelectedItems(selected)
+    // dispatch({ type: 'RESET_STATE_PRODUCT' })
+  }, [isOpen])
+
+  useEffect(() => {
+    const params = { fetch, endCursor, hasNextPage, query: debouncedValue }
+console.log("dEB")
     dispatch(getProducts(params))
   }, [debouncedValue])
 
   useEffect(() => {
-    const selected = specificProducts.map((product) => product.id)
-    setSelectedItems(selected)
-  }, [specificProducts, isOpen])
+    handleSelectedItem()
+  }, [selectedItems])
+
+  const handleSelectedItem = () => {
+    let data = []
+    console.log('ProductTemp handle: ', productTemp)
+
+    if (selectedItems.length > productTemp.length) {
+      // const id = selectedItems[selectedItems.length - 1]
+      // const product = allProducts.find((product) => product.id == id)
+
+      const selectedTemp = selectedItems.map((id) => {
+        // if ()
+        const product = allProducts.find((product) => product.id == id)
+        if (product) {
+          return product
+        }
+
+        console.log('Product Temp: ', productTemp)
+        return productTemp.find((product) => {
+          console.log('Product: ', product)
+          return product.id == id
+        })
+      })
+
+      // data = [...productTemp, { ...product }]
+      console.log('productTemp selected: ', selectedTemp)
+      data.push(...selectedTemp)
+    } else {
+      data = productTemp.filter((product) => {
+        return selectedItems.includes(product.id)
+      })
+    }
+
+    setProductTemp(() => [...data])
+  }
 
   const handleScrollBottom = () => {
     if (!isLoading && hasNextPage) {
@@ -147,9 +198,6 @@ const ResourceListProduct = ({ selectedItems, setSelectedItems }) => {
   const { allProducts: items, isLoading } = useSelector(
     (state) => state.products
   )
-
-  console.log('SelectedItems: ', selectedItems)
-  console.log('All Product: ', items)
 
   return (
     <LegacyCard>

@@ -20,8 +20,6 @@ export const getProducts = (params) => {
     const { isLazyLoading } = params
     dispatch({ type: 'LOADING' })
 
-    dispatch({ type: 'LOADING' })
-
     if (!isLazyLoading) {
       dispatch({ type: 'SET_PRODUCT_EMPTY' })
     }
@@ -40,48 +38,38 @@ export const getProducts = (params) => {
   }
 }
 
-export const updateProducts = ({
-  allProducts,
-  selectedItems,
-  specificProducts,
-}) => {
-  // const data = specificProducts.filter((product) =>
-  //   selectedItems.includes(product.id)
-  // )
+export const updateProducts = ({ productTemp }) => {
 
-  // const data2 = allProducts.filter((product) => {
-  //   return selectedItems.includes(product.id)
-  // })
-
-  const data = selectedItems.map((id) => {
-    const product = specificProducts.filter((product) => product.id == id)
-
-
-    
-  } )
-
-  console.log('DATA1, DATA2', [...data, ...data2])
-
-  
-  const data3 = new Set(...data, ...data2)
-
-  console.log('DATA3: ', data3)
   return {
     type: 'UPDATE_SPECIFIC_PRODUCT',
-    payload: Array.from(data3),
+    payload: productTemp,
   }
 }
 
-export const handleSelected = ({specificProduct, selectedItems, allProducts }) => {
-  if (selectedItems.length > specificProduct.length) {
+export const handleSelected = ({
+  specificProducts,
+  selectedItems,
+  allProducts,
+}) => {
+  let data = []
+  if (selectedItems.length > specificProducts.length) {
     const id = selectedItems[selectedItems.length - 1]
     const product = allProducts.find((product) => product.id == id)
-    specificProduct.push(product)
-    // update specific product
-    // dispath update
+    specificProducts.push(product)
+
+    data = specificProducts
+    console.log('Data 1', data)
   } else {
-    specificProduct.filter(() => {
-      return selectedItems.includes()
+    console.log('product specific: ', specificProducts)
+    data = specificProducts.filter((product) => {
+      return selectedItems.includes(product.id)
     })
+
+    console.log('Data 2 : ', data)
+  }
+
+  return {
+    type: 'UPDATE_SPECIFIC_PRODUCT',
+    payload: data,
   }
 }

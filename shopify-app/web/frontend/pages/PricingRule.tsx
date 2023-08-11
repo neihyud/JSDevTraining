@@ -54,7 +54,6 @@ const PricingRulePage = () => {
 
   const [rows, setRows] = useState([])
 
-
   useEffect(() => {
     fetch('/api/shop/currencyCode')
       .then((res) => res.json())
@@ -324,11 +323,11 @@ const PricingRulePage = () => {
           })
           .join(' OR ')
 
-          // ${
-          //   pageInfo.hasNextPage == 'true'
-          //     ? `, after:"${pageInfo.endCursor}"`
-          //     : ''
-          // }
+        // ${
+        //   pageInfo.hasNextPage == 'true'
+        //     ? `, after:"${pageInfo.endCursor}"`
+        //     : ''
+        // }
         query = `{
             products (first: 25, query:"${subQuery}" ) {
               edges {
@@ -591,6 +590,8 @@ const PricingRulePage = () => {
         />
       </Layout>
 
+      {/* {isOpenModal && (
+        )} */}
       <ModalSpecificProduct openModal={setIsOpenModal} isOpen={isOpenModal} />
       <div style={{ padding: '40px' }}></div>
 
